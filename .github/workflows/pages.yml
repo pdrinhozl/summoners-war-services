@@ -1,0 +1,62 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start server
+        env:
+          SITE_URL: https://pdrinhozl.github.io/summoners-war-services
+          NODE_ENV: production
+        run: |
+          node server.js &
+          sleep 6
+          curl -fsS http://localhost:3000/ > /dev/null
+
+      - name: Crawl public pages (static snapshot)
+        run: |
+          wget -r -np -k -E -p --no-host-directories -e robots=off \
+            --reject-regex '/(admin|vendedor|cliente|logout|verificar-email|resetar-senha)' \
+            -P static \
+            http://localhost:3000/
+          touch static/.nojekyll
+
+      - name: Stop server
+        run: kill %1 || true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
