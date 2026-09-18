@@ -1,0 +1,200 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do cliente</span>
+    <h1>Pedido <span class="quote-id"><%= order.id %></span></h1>
+    <p class="muted"><%= order.title || 'Service personalizado' %></p>
+  </div>
+  <a href="/cliente/pedidos" class="btn btn-ghost">Voltar para pedidos</a>
+</div>
+
+<% var st = orderStatus[order.status] || orderStatus.pending_payment; %>
+<div class="container order-hero">
+  <div>
+    <div class="order-id">#<%= order.id %></div>
+    <div class="order-status-line">
+      <span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span>
+      <% if (order.paid_at) { %><span class="muted small">Pago em <%= order.paid_at %></span><% } %>
+      <% if (order.delivered_at) { %><span class="muted small">Entregue em <%= order.delivered_at %></span><% } %>
+      <% if (order.completed_at) { %><span class="muted small">Concluído em <%= order.completed_at %></span><% } %>
+    </div>
+  </div>
+  <div class="total-price"><%= money(order.price) %></div>
+</div>
+
+<div class="container steps-h">
+  <span class="stp <%= ['paid','in_progress','delivered','completed'].indexOf(order.status) >= 0 ? 'done' : (order.status === 'pending_payment' || order.status === 'awaiting_confirm' ? 'now' : '') %>">1 · Pagamento</span>
+  <span class="stp <%= ['in_progress','delivered','completed'].indexOf(order.status) >= 0 ? 'done' : (order.status === 'paid' ? 'now' : '') %>">2 · Execução</span>
+  <span class="stp <%= order.status === 'delivered' ? 'now' : (order.status === 'completed' ? 'done' : '') %>">3 · Entrega</span>
+  <span class="stp <%= order.status === 'completed' ? 'done' : '' %>">4 · Avaliação</span>
+</div>
+
+<div class="container split">
+  <div class="left">
+    <div class="panel">
+      <div class="panel-head"><h2>Dados do pedido</h2></div>
+      <ul class="detail-list">
+        <li><span>Nome do contato</span><%= order.client_name || '—' %></li>
+        <li><span>WhatsApp</span><%= order.client_whatsapp || '—' %></li>
+        <li><span>Jogo</span><%= order.game_name || '—' %></li>
+        <li><span>Rank atual</span><%= order.game_rank || '—' %></li>
+        <li><span>Caixas / material</span><%= order.game_boxes || '—' %></li>
+        <li><span>Valor</span><%= money(order.price) %></li>
+        <% if (order.seller_name) { %><li><span>Vendedor</span><%= order.seller_name %></li><% } %>
+      </ul>
+      <% if (order.message) { %>
+        <p class="form-note" style="margin-top:1rem">DETALHE DO PEDIDO</p>
+        <div class="quote-message"><%= order.message %></div>
+      <% } %>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head" id="chat"><h2>Conversa</h2></div>
+      <div class="chat-box">
+        <div class="chat-thread">
+          <% if (!messages.length) { %>
+            <p class="muted small center">Nenhuma mensagem ainda. Fale com a equipe aqui.</p>
+          <% } %>
+          <% messages.forEach(function(m){ var me = m.sender_id === user.id; %>
+            <div class="msg <%= me ? 'me' : '' %>">
+              <div class="msg-head"><strong><%= m.sender_role === 'admin' ? 'Equipe' : m.sender_role === 'seller' ? 'Vendedor' : 'Você' %></strong><span><%= m.created_at %></span></div>
+              <div class="msg-body"><%= m.body %></div>
+            </div>
+          <% }); %>
+        </div>
+        <form method="POST" action="/cliente/pedidos/<%= order.id %>/mensagem" class="chat-input">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <textarea name="message" maxlength="2000" placeholder="Escreva sua mensagem..." required></textarea>
+          <button class="btn btn-gold" type="submit">Enviar</button>
+        </form>
+      </div>
+      <p class="form-note">Tudo o que você combinar aqui fica registrado como prova do pedido.</p>
+    </div>
+  </div>
+
+  <div class="right">
+    <% if (order.status === 'pending_payment') { %>
+      <div class="panel pix-panel">
+        <div class="panel-head"><h2>Pagamento via Pix</h2></div>
+        <% if (order.payment_code) { %>
+          <p class="muted small">Faça um Pix de <strong style="color:var(--gold)"><%= money(order.price) %></strong> para a chave cadastrada do <strong><%= settings.site_name %></strong> e cole o comprovante aqui:</p>
+          <div class="code-box">
+            <p>Pix copia e cola (EMV)</p>
+            <div class="code-copy">
+              <textarea readonly onclick="this.select()"><%= order.payment_code %></textarea>
+              <button class="btn btn-ghost btn-sm" type="button" data-copy="<%= order.payment_code %>" id="copyPix">Copiar</button>
+            </div>
+            <div class="copy-feedback" id="copyFeedback"></div>
+          </div>
+        <% } else { %>
+          <p class="muted small">Nossa chave Pix está sendo configurada. A equipe vai entrar em contato pelas instruções de pagamento e confirmar seu pedido assim que receber o pagamento.</p>
+        <% } %>
+        <form method="POST" action="/cliente/pedidos/<%= order.id %>/pagamento-confirmado" style="margin-top:1rem">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn btn-green btn-block" type="submit" onclick="return confirm('Já realizei o pagamento do valor exato exibido acima.');">Já efetuei o pagamento</button>
+        </form>
+        <p class="side-note">Depois de confirmar, a equipe valida a chegada do valor e inicia o pedido.</p>
+      </div>
+    <% } else if (order.status === 'awaiting_confirm') { %>
+      <div class="panel pix-panel">
+        <div class="panel-head"><h2>Pagamento em confirmação</h2></div>
+        <p class="muted">A equipe está verificando a chegada do valor. Assim que confirmarmos, o pedido entra em produção.</p>
+      </div>
+    <% } else if (order.status === 'paid') { %>
+      <div class="panel">
+        <div class="panel-head"><h2>Pagamento confirmado</h2></div>
+        <p class="muted">Seu pedido foi liberado para o vendedor começar. Você será notificado em cada etapa.</p>
+      </div>
+    <% } else if (order.status === 'in_progress') { %>
+      <div class="panel">
+        <div class="panel-head"><h2>Pedido em execução</h2></div>
+        <p class="muted">O vendedor está trabalhando no seu pedido. Acompanhe as novidades na conversa.</p>
+      </div>
+    <% } else if (order.status === 'delivered') { %>
+      <div class="panel">
+        <div class="panel-head"><h2>Pedido entregue!</h2></div>
+        <p class="muted">Confira o serviço entregue. Só confirme o recebimento se estiver tudo correto — após isso, o valor é liberado para o vendedor.</p>
+        <form method="POST" action="/cliente/pedidos/<%= order.id %>/confirmar" style="margin-top:1rem">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn btn-gold btn-block btn-lg" type="submit" onclick="return confirm('Confirma o recebimento do pedido?');">Confirmar recebimento</button>
+        </form>
+      </div>
+    <% } else if (order.status === 'completed') { %>
+      <div class="panel">
+        <div class="panel-head"><h2>Pedido concluído</h2></div>
+        <p class="muted">Obrigado pela sua confiança! Seu feedback ajuda outros invocadores.</p>
+      </div>
+    <% } else { %>
+      <div class="panel">
+        <div class="panel-head"><h2><%= order.status === 'refunded' ? 'Pedido reembolsado' : 'Pedido cancelado' %></h2></div>
+        <p class="muted"><%= order.status === 'refunded' ? 'O valor foi devolvido conforme combinado.' : 'Este pedido não vai mais seguir para execução.' %></p>
+      </div>
+    <% } %>
+
+    <% if (['pending_payment', 'awaiting_confirm'].indexOf(order.status) >= 0) { %>
+      <div class="panel">
+        <form method="POST" action="/cliente/pedidos/<%= order.id %>/cancelar" onsubmit="return confirm('Cancelar este pedido?');">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn btn-danger btn-block" type="submit">Cancelar pedido</button>
+        </form>
+      </div>
+    <% } %>
+
+    <% if (order.status === 'completed') { %>
+      <div class="panel" id="avaliar">
+        <div class="panel-head"><h2>Avaliar vendedor</h2></div>
+        <% if (review) { %>
+          <div class="review">
+            <div class="review-top">
+              <span class="review-stars"><%= stars(review.rating) %></span>
+              <span class="review-time"><%= review.created_at %></span>
+            </div>
+            <% if (review.comment) { %><p class="review-body"><%= review.comment %></p><% } %>
+          </div>
+        <% } else { %>
+          <form method="POST" action="/cliente/pedidos/<%= order.id %>/avaliar">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <div class="field">
+              <label>Sua nota</label>
+              <div class="rate-row">
+                <% for (var i = 5; i >= 1; i--) { %>
+                  <input type="radio" name="rating" value="<%= i %>" id="rating<%= i %>" />
+                  <label for="rating<%= i %>" title="<%= i %> estrelas">★</label>
+                <% } %>
+              </div>
+            </div>
+            <div class="field">
+              <label>Comentário (opcional)</label>
+              <textarea name="comment" maxlength="1000" rows="3" placeholder="Conte como foi sua experiência..."></textarea>
+            </div>
+            <button class="btn btn-gold btn-block" type="submit">Enviar avaliação</button>
+          </form>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('copyPix');
+    var fb = document.getElementById('copyFeedback');
+    if (!btn || !fb) return;
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+      function done() { fb.textContent = 'Pix copiado!'; setTimeout(function () { fb.textContent = ''; }, 2500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+      } else { fallback(); }
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
+  })();
+</script>
+
+<%- include('../partials/footer') %>

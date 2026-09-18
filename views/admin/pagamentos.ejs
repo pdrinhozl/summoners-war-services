@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Pagamentos e saques</h1>
+    <p class="muted">Valide pagamentos Pix e processe os saques dos vendedores.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <h2 class="dash-title">Saques solicitados</h2>
+  <% if (!payouts.length) { %>
+    <div class="empty"><h3>Nenhum saque solicitado</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Data</th><th>Vendedor</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <% payouts.forEach(function(p){ %>
+            <tr>
+              <td class="muted small"><%= p.created_at %></td>
+              <td><%= p.seller_name %></td>
+              <td><strong style="color:var(--gold)"><%= money(p.amount) %></strong></td>
+              <td><span class="status-pill <%= p.status === 'paid' ? 'status-approved' : p.status === 'cancelled' ? 'status-rejected' : 'status-pending' %>"><%= p.status === 'paid' ? 'Pago' : p.status === 'cancelled' ? 'Cancelado' : 'Pendente' %></span></td>
+              <td class="cell-actions">
+                <% if (p.status === 'pending') { %>
+                  <form method="POST" action="/admin/saques/<%= p.id %>/pagar" onsubmit="return confirm('Confirmar pagamento deste saque?');">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button class="btn btn-green btn-xs" type="submit">Marcar como pago</button>
+                  </form>
+                  <form method="POST" action="/admin/saques/<%= p.id %>/cancelar" onsubmit="return confirm('Cancelar saque e devolver ao saldo?');">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button class="btn btn-danger btn-xs" type="submit">Cancelar</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<div class="container section">
+  <h2 class="dash-title">Pagamentos para confirmar</h2>
+  <% if (!payments.length) { %>
+    <div class="empty"><h3>Nenhum pagamento pendente de confirmação</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Pedido</th><th>Cliente</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <% payments.forEach(function(p){ var pst = orderStatus[p.status] || orderStatus.pending_payment; %>
+            <tr>
+              <td><a href="/admin/pedidos/<%= p.id %>">#<%= p.id %></a></td>
+              <td><%= p.client_name || '—' %></td>
+              <td><%= money(p.price) %></td>
+              <td><span class="status-pill" style="--pill:<%= pst.color %>"><%= pst.label %></span></td>
+              <td class="cell-actions"><a href="/admin/pedidos/<%= p.id %>" class="btn btn-ghost btn-xs">Validar</a></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

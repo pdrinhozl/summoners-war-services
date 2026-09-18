@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div class="container">
+    <span class="eyebrow">Segurança</span>
+    <h1>Termos e segurança</h1>
+  </div>
+</div>
+
+<div class="container section prose-box">
+  <h2>Nosso compromisso</h2>
+  <p>O <%= settings.site_name %> é uma plataforma de intermediação de services de Summoners War. Trabalhamos para que cada pedido seja transparente e seguro, tanto para clientes quanto para vendedores.</p>
+
+  <h2>Orçamentos grátis</h2>
+  <p>Todo orçamento é gratuito e não gera compromisso. A análise serve para verificar se a sua conta está apta para o service desejado. Você só paga se decidir fechar.</p>
+
+  <h2>Verificação de vendedores</h2>
+  <p>Nenhum vendedor publica services sem antes passar pela verificação manual da administração. Contas verificadas recebem o selo e são monitoradas continuamente.</p>
+
+  <h2>Segurança da conta</h2>
+  <ul>
+    <li>Nunca peça nem informe sua senha por canais não oficiais.</li>
+    <li>Todo contato e pagamento deve acontecer pelos canais oficiais informados no site.</li>
+    <li>Use senha única e ative a verificação em duas etapas sempre que possível.</li>
+  </ul>
+
+  <h2>Isenção de responsabilidade</h2>
+  <p>Este é um projeto independente de fãs. Summoners War e todas as marcas relacionadas pertencem à Com2uS. Não temos vínculo, patrocínio ou afiliação com a Com2uS.</p>
+
+  <h2>Suporte</h2>
+  <p>Precisa de ajuda? Fale com a gente em <a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a> ou no <a href="<%= settings.contact_discord %>" target="_blank" rel="noopener">Discord</a>.</p>
+</div>
+
+<%- include('partials/footer') %>

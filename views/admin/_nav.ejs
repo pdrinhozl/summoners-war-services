@@ -1,0 +1,21 @@
+<aside class="admin-side">
+  <div class="admin-side-head">
+    <span class="admin-side-title"><%- icon('shieldCheck') %> Administração</span>
+  </div>
+  <nav class="admin-side-nav">
+    <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>"><%- icon('gem') %> <span>Dashboard</span></a>
+    <a href="/admin/pedidos" class="<%= path.startsWith('/admin/pedidos') ? 'active' : '' %>"><%- icon('cart') %> <span>Pedidos</span></a>
+    <a href="/admin/orcamentos" class="<%= path.startsWith('/admin/orcamentos') ? 'active' : '' %>"><%- icon('clipboard') %> <span>Orçamentos</span></a>
+    <a href="/admin/pagamentos" class="<%= path === '/admin/pagamentos' ? 'active' : '' %>"><%- icon('coins') %> <span>Pagamentos</span></a>
+    <a href="/admin/servicos" class="<%= path.startsWith('/admin/servicos') ? 'active' : '' %>"><%- icon('sparkles') %> <span>Services</span></a>
+    <a href="/admin/submissoes" class="<%= path === '/admin/submissoes' ? 'active' : '' %>"><%- icon('clock') %> <span>Submissões</span></a>
+    <a href="/admin/avaliacoes" class="<%= path === '/admin/avaliacoes' ? 'active' : '' %>"><%- icon('star') %> <span>Avaliações</span></a>
+    <a href="/admin/vendedores" class="<%= path.startsWith('/admin/vendedores') ? 'active' : '' %>"><%- icon('user') %> <span>Vendedores</span></a>
+    <a href="/admin/clientes" class="<%= path === '/admin/clientes' ? 'active' : '' %>"><%- icon('users') %> <span>Clientes</span></a>
+    <a href="/admin/config" class="<%= path === '/admin/config' ? 'active' : '' %>"><%- icon('cog') %> <span>Configurações</span></a>
+    <a href="/admin/seguranca" class="<%= path === '/admin/seguranca' ? 'active' : '' %>"><%- icon('shield') %> <span>Segurança</span></a>
+  </nav>
+  <div class="admin-side-foot">
+    <a href="/"><%- icon('home') %> <span>Ver site</span></a>
+  </div>
+</aside>

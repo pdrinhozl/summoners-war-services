@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Vendedores</h1>
+    <p class="muted">Verifique manualmente quem pode vender no site.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <% if (pendingSellers.length) { %>
+    <div class="banner banner-warn"><%= pendingSellers.length %> vendedor(es) aguardando verificação manual.</div>
+  <% } %>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Vendedor</th><th>Contato</th><th>Services</th><th>Status</th><th>Cadastro</th><th></th></tr></thead>
+      <tbody>
+        <% sellers.forEach(function(s){ %>
+          <tr>
+            <td><strong><%= s.name %></strong><br /><span class="muted small"><%= s.email %></span></td>
+            <td class="muted small"><%= s.seller_contact || '—' %></td>
+            <td class="muted small"><%= s.service_count %></td>
+            <td><span class="status-pill status-<%= s.seller_status %>"><%= s.seller_status === 'verified' ? 'Verificado' : s.seller_status === 'rejected' ? 'Recusado' : 'Aguardando' %></span></td>
+            <td class="muted small"><%= s.created_at %></td>
+            <td class="cell-actions"><a href="/admin/vendedores/<%= s.id %>" class="btn btn-gold btn-xs">Analisar</a></td>
+          </tr>
+        <% }); %>
+        <% if (!sellers.length) { %><tr><td colspan="6" class="muted center">Nenhum vendedor cadastrado.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

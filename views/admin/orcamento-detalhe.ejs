@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Orçamento #<%= quote.id %></span>
+    <h1><%= quote.client_name %></h1>
+    <p class="muted">Recebido em <%= quote.created_at %></p>
+  </div>
+  <div class="dash-header-actions">
+    <a href="/admin/orcamentos" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container admin-grid">
+  <div class="panel">
+    <div class="panel-head"><h2>Dados da conta</h2></div>
+    <ul class="detail-list">
+      <li><span>Service desejado</span><strong><%= quote.service_title || 'Personalizado / a definir' %></strong></li>
+      <li><span>Nick no jogo</span><strong><%= quote.game_name || '—' %></strong></li>
+      <li><span>Nível</span><strong><%= quote.game_level || '—' %></strong></li>
+      <li><span>Ranking</span><strong><%= quote.game_rank || '—' %></strong></li>
+      <li><span>Servidor</span><strong><%= quote.game_boxes || '—' %></strong></li>
+      <li><span>Conta disponível</span><strong><%= quote.account_ready ? 'Sim' : 'Não informado' %></strong></li>
+      <li><span>E-mail</span><strong><%= quote.client_email || '—' %></strong></li>
+      <li><span>WhatsApp</span><strong><%= quote.client_whatsapp || '—' %></strong></li>
+    </ul>
+    <div class="field mt">
+      <label>Descrição do cliente</label>
+      <div class="quote-message"><%= quote.message || '—' %></div>
+    </div>
+    <a class="btn btn-outline btn-block mt" href="https://wa.me/<%= (quote.client_whatsapp || '').replace(/\D/g,'') %>" target="_blank" rel="noopener">Conversar no WhatsApp</a>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Análise e resposta</h2></div>
+    <form method="POST" action="/admin/orcamentos/<%= quote.id %>" class="card-form compact">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="field">
+        <label>Status do orçamento</label>
+        <select name="status">
+          <option value="pending" <%= quote.status === 'pending' ? 'selected' : '' %>>Aguardando análise</option>
+          <option value="reviewed" <%= quote.status === 'reviewed' ? 'selected' : '' %>>Em análise pela equipe</option>
+          <option value="approved" <%= quote.status === 'approved' ? 'selected' : '' %>>Aprovado (conta apta)</option>
+          <option value="rejected" <%= quote.status === 'rejected' ? 'selected' : '' %>>Recusado (conta não apta)</option>
+          <option value="done" <%= quote.status === 'done' ? 'selected' : '' %>>Concluído</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Valor proposto (R$)</label>
+        <input type="number" step="0.01" name="offer_price" value="<%= quote.offer_price || '' %>" placeholder="Ex: 150.00" />
+      </div>
+      <div class="field">
+        <label>Nota para o cliente</label>
+        <textarea name="admin_note" rows="5" placeholder="Explique o resultado da análise, prazo e próximos passos..."><%= quote.admin_note %></textarea>
+      </div>
+      <button class="btn btn-gold btn-block" type="submit">Salvar resposta</button>
+    </form>
+    <form method="POST" action="/admin/orcamentos/<%= quote.id %>/excluir" onsubmit="return confirm('Excluir este orçamento?');">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-danger btn-block mt" type="submit">Excluir orçamento</button>
+    </form>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

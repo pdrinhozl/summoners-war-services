@@ -1,0 +1,56 @@
+<%- include('partials/header') %>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <img src="/img/logo.svg" alt="" class="brand-logo lg" />
+      <h1>Criar conta</h1>
+      <p class="muted">Escolha como você quer usar a plataforma.</p>
+    </div>
+    <form method="POST" action="/registro" class="card-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="role-switch">
+        <label class="role-option">
+          <input type="radio" name="role" value="client" <%= role !== 'seller' ? 'checked' : '' %> />
+          <span><strong><%- icon('game') %> Sou cliente</strong><small>Quero contratar services e pedir orçamentos.</small></span>
+        </label>
+        <label class="role-option">
+          <input type="radio" name="role" value="seller" <%= role === 'seller' ? 'checked' : '' %> />
+          <span><strong><%- icon('shield') %> Quero vender</strong><small>Quero oferecer services e passar pela verificação.</small></span>
+        </label>
+      </div>
+      <div class="field">
+        <label>Nome / apelido</label>
+        <input type="text" name="name" value="<%= form.name || '' %>" required />
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" name="email" value="<%= form.email || '' %>" required />
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" name="password" required minlength="6" />
+        </div>
+        <div class="field">
+          <label>Confirmar senha</label>
+          <input type="password" name="password2" required minlength="6" />
+        </div>
+      </div>
+      <button class="btn btn-gold btn-block btn-lg" type="submit">Criar conta grátis</button>
+      <p class="form-note">Contas de vendedor passam por verificação manual antes de publicar services.</p>
+    </form>
+    <p class="auth-alt">Já tem conta? <a href="/login">Entrar</a></p>
+  </div>
+  <div class="auth-side">
+    <h2>Junte-se à comunidade</h2>
+    <p>Uma plataforma feita por quem joga Summoners War, para quem joga Summoners War.</p>
+    <ul class="check-list">
+      <li>Vendedores verificados manualmente</li>
+      <li>Orçamento grátis antes de pagar</li>
+      <li>Painel completo de acompanhamento</li>
+    </ul>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

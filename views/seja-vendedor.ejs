@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+<div class="page-head seller-head">
+  <div class="container">
+    <span class="eyebrow">Para vendedores</span>
+    <h1>Venda seus services no <%= settings.site_name %></h1>
+    <p class="muted">Cadastre-se, passe pela verificação manual e publique para toda a comunidade de Summoners War.</p>
+    <a href="/registro" class="btn btn-gold btn-lg mt">Criar conta de vendedor</a>
+  </div>
+</div>
+
+<div class="container section">
+  <div class="benefits">
+    <div class="benefit"><span><%- icon('shield') %></span><h3>Verificação manual</h3><p>Sua conta é analisada pela nossa equipe. Vendedores verificados ganham o selo e mais confiança dos clientes.</p></div>
+    <div class="benefit"><span><%- icon('cart') %></span><h3>Vitrine pronta</h3><p>Publique seus services com fotos, preços, prazos, o que está incluso e requisitos.</p></div>
+    <div class="benefit"><span><%- icon('chat') %></span><h3>Receba orçamentos</h3><p>Clientes interessados chegam até você pelo painel de orçamentos dos seus services.</p></div>
+    <div class="benefit"><span><%- icon('coins') %></span><h3>Controle total e ganhos</h3><p>Edite seus services quando quiser e acompanhe seus ganhos com comissão transparente da plataforma.</p></div>
+  </div>
+
+  <div class="steps mt-lg">
+    <div class="step"><span class="step-num">1</span><h3>Cadastre-se</h3><p>Crie sua conta como vendedor em segundos.</p></div>
+    <div class="step"><span class="step-num">2</span><h3>Complete o perfil</h3><p>Conte sua experiência e como os clientes falam com você.</p></div>
+    <div class="step"><span class="step-num">3</span><h3>Verificação</h3><p>Nossa equipe revisa seu perfil manualmente e aprova.</p></div>
+    <div class="step"><span class="step-num">4</span><h3>Publique</h3><p>Envie seus services e comece a vender.</p></div>
+  </div>
+
+  <div class="cta-band with-char mt-lg">
+    <img src="/img/char-belladeon.png" alt="" class="cta-char" loading="lazy" />
+    <div class="cta-copy">
+      <h2>Ainda tem dúvidas?</h2>
+      <p>Fale com a nossa equipe no Discord ou WhatsApp.</p>
+    </div>
+    <a href="<%= settings.contact_discord %>" target="_blank" rel="noopener" class="btn btn-gold btn-lg">Entrar no Discord</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

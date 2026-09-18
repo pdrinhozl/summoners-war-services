@@ -1,0 +1,106 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do cliente</span>
+    <h1>Olá, <%= user.name.split(' ')[0] %></h1>
+    <p class="muted">Acompanhe aqui todos os seus orçamentos e pedidos.</p>
+  </div>
+  <a href="/orcamento" class="btn btn-gold">Novo orçamento grátis</a>
+</div>
+
+<div class="container dash-stats">
+  <div class="stat"><strong data-count="<%= pedidos.length %>"><%= pedidos.length %></strong><span>Pedidos</span></div>
+  <div class="stat"><strong data-count="<%= pedidos.filter(function(o){return ['pending_payment','awaiting_confirm','paid','in_progress','delivered'].indexOf(o.status) >= 0;}).length %>"><%= pedidos.filter(function(o){return ['pending_payment','awaiting_confirm','paid','in_progress','delivered'].indexOf(o.status) >= 0;}).length %></strong><span>Em andamento</span></div>
+  <div class="stat"><strong data-count="<%= pedidos.filter(function(o){return o.status === 'completed';}).length %>"><%= pedidos.filter(function(o){return o.status === 'completed';}).length %></strong><span>Concluídos</span></div>
+  <div class="stat"><strong data-count="<%= quotes.filter(function(q){return q.status === 'pending' || q.status === 'reviewed';}).length %>"><%= quotes.filter(function(q){return q.status === 'pending' || q.status === 'reviewed';}).length %></strong><span>Orçamentos em análise</span></div>
+</div>
+
+<div class="container section">
+  <h2 class="dash-title">Meus pedidos</h2>
+  <% if (!pedidos.length) { %>
+    <div class="empty">
+      <h3>Você ainda não tem pedidos</h3>
+      <p>Peça um <a href="/orcamento">orçamento grátis</a> e, quando ele for aprovado, é só gerar o pedido.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Pedido</th><th>Serviço</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <% pedidos.forEach(function(o){ var st = orderStatus[o.status] || orderStatus.pending_payment; %>
+            <tr>
+              <td><span class="quote-id">#<%= o.id %></span></td>
+              <td><%= o.title || 'Service personalizado' %></td>
+              <td><%= money(o.price) %></td>
+              <td><span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span></td>
+              <td class="cell-actions"><a href="/cliente/pedidos/<%= o.id %>" class="btn btn-ghost btn-xs">Abrir</a></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<div class="container section">
+  <h2 class="dash-title">Meus orçamentos</h2>
+  <% if (!quotes.length) { %>
+    <div class="empty">
+      <h3>Você ainda não pediu nenhum orçamento</h3>
+      <p>É grátis e sem compromisso. <a href="/orcamento">Peça agora</a>.</p>
+    </div>
+  <% } %>
+  <div class="quote-list">
+    <% quotes.forEach(function(q){ var st = quoteStatus[q.status] || quoteStatus.pending; %>
+      <div class="quote-row">
+        <div class="quote-row-main">
+          <div class="quote-row-top">
+            <span class="quote-id">#<%= q.id %></span>
+            <span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span>
+          </div>
+          <p class="quote-desc"><%= q.message ? q.message.slice(0, 140) : 'Orçamento personalizado' %></p>
+          <div class="quote-meta">
+            <span><%= q.game_name || '—' %></span>
+            <span><%= q.game_rank || '—' %></span>
+            <span><%= q.created_at %></span>
+          </div>
+        </div>
+        <div class="quote-row-side">
+          <% if (q.offer_price) { %>
+            <span class="from">valor proposto</span>
+            <strong class="price"><%= money(q.offer_price) %></strong>
+          <% } %>
+          <% if (q.admin_note) { %>
+            <div class="note-box"><strong>Recado da equipe:</strong> <%= q.admin_note %></div>
+          <% } %>
+          <% if (q.status === 'approved' && q.offer_price) { %>
+            <form method="POST" action="/cliente/orcamentos/<%= q.id %>/aprovar">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button class="btn btn-gold btn-sm" type="submit">Gerar pedido e pagar</button>
+            </form>
+          <% } else if (q.status === 'pending' || q.status === 'reviewed') { %>
+            <span class="muted small">Aguardando valor da equipe</span>
+          <% } %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<div class="container section">
+  <h2 class="dash-title">Minha conta</h2>
+  <div class="balance-hero">
+    <div>
+      <strong><%= user.name %></strong>
+      <span><%= user.email %></span>
+    </div>
+    <form method="POST" action="/cliente/conta/excluir" onsubmit="return confirm('Excluir permanentemente sua conta e todos os seus dados? Esta ação não pode ser desfeita.');">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-danger" type="submit">Excluir minha conta</button>
+    </form>
+  </div>
+  <p class="muted small">Ao excluir, seus orçamentos e pedidos em aberto são cancelados e seus dados pessoais são removidos (LGPD).</p>
+</div>
+
+<%- include('../partials/footer') %>

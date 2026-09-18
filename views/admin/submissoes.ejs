@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Submissões de vendedores</h1>
+    <p class="muted">Services enviados por vendedores aguardando aprovação.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <% if (!submissions.length) { %>
+    <div class="empty"><h3>Nenhuma submissão pendente</h3><p>Quando um vendedor enviar um service, ele aparece aqui.</p></div>
+  <% } %>
+  <div class="stack">
+    <% submissions.forEach(function(s){ %>
+      <div class="panel">
+        <div class="submission-head">
+          <div class="cell-service">
+            <img src="<%= s.image %>" alt="" loading="lazy" onerror="this.src='/img/default-service.png'" />
+            <div>
+              <h3><%= s.title %></h3>
+              <span class="muted small"><%= s.category_name %> · por <%= s.owner_name %> (<%= s.owner_email %>)</span>
+            </div>
+          </div>
+          <div class="submission-price"><%= money(s.price_from) %> – <%= money(s.price_to) %></div>
+        </div>
+        <p class="muted"><%= s.short %></p>
+        <p class="muted small">Enviado em <%= s.created_at %></p>
+        <div class="form-actions">
+          <a href="/admin/servicos/<%= s.id %>" class="btn btn-ghost btn-sm">Revisar / editar</a>
+          <form method="POST" action="/admin/submissoes/<%= s.id %>/aprovar"><input type="hidden" name="_csrf" value="<%= csrfToken %>" /><button class="btn btn-green btn-sm">Aprovar e publicar</button></form>
+          <form method="POST" action="/admin/submissoes/<%= s.id %>/rejeitar"><input type="hidden" name="_csrf" value="<%= csrfToken %>" /><button class="btn btn-danger btn-sm">Recusar</button></form>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

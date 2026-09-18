@@ -1,0 +1,89 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Dashboard</h1>
+    <p class="muted">Visão geral do seu negócio de services.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container dash-stats">
+  <div class="stat <%= stats.orders ? 'stat-alert' : '' %>"><strong data-count="<%= stats.orders %>"><%= stats.orders %></strong><span>Pedidos ativos</span></div>
+  <div class="stat <%= stats.payoutsPending > 0 ? 'stat-alert' : '' %>"><strong data-count="<%= stats.payoutsPending %>" data-prefix="R$ " data-decimals="2"><%= money(stats.payoutsPending) %></strong><span>Saques pendentes</span></div>
+  <div class="stat"><strong data-count="<%= stats.revenue %>" data-prefix="R$ " data-decimals="2"><%= money(stats.revenue) %></strong><span>Faturamento concluído</span></div>
+  <div class="stat"><strong data-count="<%= stats.commission %>" data-prefix="R$ " data-decimals="2"><%= money(stats.commission) %></strong><span>Comissão da plataforma</span></div>
+  <div class="stat"><strong data-count="<%= stats.pendingQuotes %>"><%= stats.pendingQuotes %></strong><span>Orçamentos abertos</span></div>
+  <div class="stat <%= stats.pendingSellers ? 'stat-alert' : '' %>"><strong data-count="<%= stats.pendingSellers %>"><%= stats.pendingSellers %></strong><span>Vendedores p/ verificar</span></div>
+  <div class="stat"><strong data-count="<%= stats.pendingServices %>"><%= stats.pendingServices %></strong><span>Submissões pendentes</span></div>
+  <div class="stat"><strong data-count="<%= stats.sellers %>"><%= stats.sellers %></strong><span>Vendedores</span></div>
+</div>
+
+<div class="container admin-grid">
+  <div class="panel">
+    <div class="panel-head"><h2>Últimos pedidos</h2><a href="/admin/pedidos" class="link-arrow">Ver todos →</a></div>
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Título</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+      <tbody>
+        <% recentOrders.forEach(function(o){ var st = orderStatus[o.status] || orderStatus.pending_payment; %>
+          <tr>
+            <td><a href="/admin/pedidos/<%= o.id %>">#<%= o.id %></a></td>
+            <td><%= o.title || 'Service personalizado' %></td>
+            <td><%= money(o.price) %></td>
+            <td><span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span></td>
+            <td class="muted small"><%= o.created_at %></td>
+          </tr>
+        <% }); %>
+        <% if (!recentOrders.length) { %><tr><td colspan="5" class="muted center">Nenhum pedido ainda.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Verificações de vendedores</h2><a href="/admin/vendedores" class="link-arrow">Gerenciar →</a></div>
+    <% const pend = recentSellers.filter(function(s){ return s.seller_status === 'pending'; }); %>
+    <% if (!pend.length) { %><p class="muted">Nenhuma verificação pendente.</p><% } %>
+    <% pend.forEach(function(s){ %>
+      <div class="verify-row">
+        <div><strong><%= s.name %></strong><br /><span class="muted small"><%= s.email %></span></div>
+        <a href="/admin/vendedores/<%= s.id %>" class="btn btn-gold btn-xs">Analisar</a>
+      </div>
+    <% }); %>
+    <% if (recentSellers.filter(function(s){return s.seller_status !== 'pending';}).length) { %>
+      <h3 class="mt">Outros vendedores</h3>
+      <% recentSellers.filter(function(s){return s.seller_status !== 'pending';}).forEach(function(s){ %>
+        <div class="verify-row">
+          <div><strong><%= s.name %></strong> <span class="status-pill status-<%= s.seller_status %>"><%= s.seller_status %></span></div>
+          <a href="/admin/vendedores/<%= s.id %>" class="btn btn-ghost btn-xs">Ver</a>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+</div>
+
+<div class="container panel">
+  <div class="panel-head"><h2>Services recentes</h2><a href="/admin/servicos" class="link-arrow">Gerenciar →</a></div>
+  <table class="data-table">
+    <thead><tr><th>Service</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Destaque</th></tr></thead>
+    <tbody>
+      <% recentServices.forEach(function(s){ %>
+        <tr>
+          <td><%= s.title %></td>
+          <td><%= s.category_name %></td>
+          <td><%= money(s.price_from) %></td>
+          <td><span class="status-pill status-<%= s.status %>"><%= s.status === 'approved' ? 'Publicado' : s.status === 'pending' ? 'Em análise' : 'Recusado' %></span></td>
+          <td><%= s.featured ? '★' : '—' %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Avaliações</h1>
+    <p class="muted">Modere as avaliações dos clientes.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <% if (!reviews.length) { %>
+    <div class="empty"><h3>Nenhuma avaliação ainda</h3></div>
+  <% } %>
+  <div class="review-list">
+    <% reviews.forEach(function(r){ %>
+      <div class="review">
+        <div class="review-top">
+          <span class="review-author"><%= r.client_name %></span>
+          <span class="review-stars"><%= stars(r.rating) %> <span class="muted small">(<%= r.rating %>/5)</span></span>
+        </div>
+        <div class="review-top">
+          <span class="muted small">Pedido #<%= r.order_id %><% if (r.seller_name) { %> · Vendedor: <%= r.seller_name %><% } %> · <%= r.created_at %></span>
+          <form method="POST" action="/admin/avaliacoes/<%= r.id %>/excluir" onsubmit="return confirm('Remover esta avaliação?');">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button class="btn btn-danger btn-xs" type="submit">Remover</button>
+          </form>
+        </div>
+        <% if (r.comment) { %><p class="review-body"><%= r.comment %></p><% } %>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

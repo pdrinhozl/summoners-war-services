@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Orçamentos</h1>
+    <p class="muted">Analise as contas, defina valores e responda os clientes.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <div class="tabs">
+    <a href="/admin/orcamentos?status=all" class="<%= filter === 'all' ? 'active' : '' %>">Todos</a>
+    <a href="/admin/orcamentos?status=pending" class="<%= filter === 'pending' ? 'active' : '' %>">Aguardando</a>
+    <a href="/admin/orcamentos?status=reviewed" class="<%= filter === 'reviewed' ? 'active' : '' %>">Em análise</a>
+    <a href="/admin/orcamentos?status=approved" class="<%= filter === 'approved' ? 'active' : '' %>">Aprovados</a>
+    <a href="/admin/orcamentos?status=done" class="<%= filter === 'done' ? 'active' : '' %>">Concluídos</a>
+    <a href="/admin/orcamentos?status=rejected" class="<%= filter === 'rejected' ? 'active' : '' %>">Recusados</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Cliente</th><th>Service</th><th>Nick</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+      <tbody>
+        <% quotes.forEach(function(q){ %>
+          <tr>
+            <td><a href="/admin/orcamentos/<%= q.id %>">#<%= q.id %></a></td>
+            <td><%= q.client_name %><br /><span class="muted small"><%= q.client_whatsapp %></span></td>
+            <td><%= q.service_title || 'Personalizado' %></td>
+            <td><%= q.game_name || '—' %></td>
+            <td><%= q.offer_price ? money(q.offer_price) : '—' %></td>
+            <td><span class="status-pill status-<%= q.status %>"><%= q.status %></span></td>
+            <td class="muted small"><%= q.created_at %></td>
+          </tr>
+        <% }); %>
+        <% if (!quotes.length) { %><tr><td colspan="7" class="muted center">Nenhum orçamento neste filtro.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

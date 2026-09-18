@@ -1,0 +1,95 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1><%= formTitle %></h1>
+    <p class="muted">Configure todos os detalhes do service.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <form method="POST" action="<%= service ? '/admin/servicos/' + service.id : '/admin/servicos/novo' %>" enctype="multipart/form-data" class="card-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <div class="grid-2">
+      <div class="field">
+        <label>Título *</label>
+        <input type="text" name="title" value="<%= service ? service.title : '' %>" required />
+      </div>
+      <div class="field">
+        <label>Categoria *</label>
+        <select name="category_id" required>
+          <% categories.forEach(function(c){ %>
+            <option value="<%= c.id %>" <%= service && service.category_id === c.id ? 'selected' : '' %>><%= iconLabel(c.icon) %> <%= c.name %></option>
+          <% }); %>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Imagem (arquivo)</label>
+      <input type="file" name="image" accept="image/*" />
+      <% if (service && service.image) { %><small class="muted">Atual: <img src="<%= service.image %>" class="thumb" alt="" /></small><% } %>
+    </div>
+    <div class="field">
+      <label>Ou URL da imagem</label>
+      <input type="text" name="image" value="<%= service ? service.image : '/img/default-service.png' %>" />
+    </div>
+    <div class="field">
+      <label>Resumo curto</label>
+      <input type="text" name="short" maxlength="160" value="<%= service ? service.short : '' %>" />
+    </div>
+    <div class="field">
+      <label>Descrição completa</label>
+      <textarea name="description" rows="7"><%= service ? service.description : '' %></textarea>
+    </div>
+
+    <div class="grid-4">
+      <div class="field"><label>Preço de *</label><input type="number" step="0.01" name="price_from" value="<%= service ? service.price_from : '0' %>" /></div>
+      <div class="field"><label>Preço até</label><input type="number" step="0.01" name="price_to" value="<%= service ? service.price_to : '0' %>" /></div>
+      <div class="field"><label>Entrega mín (dias)</label><input type="number" name="delivery_min" value="<%= service ? service.delivery_min : 1 %>" /></div>
+      <div class="field"><label>Entrega máx (dias)</label><input type="number" name="delivery_max" value="<%= service ? service.delivery_max : 1 %>" /></div>
+    </div>
+
+    <div class="field">
+      <label>O que está incluso (um item por linha)</label>
+      <textarea name="includes" rows="5"><%= service ? (service.editIncludes || '') : '' %></textarea>
+    </div>
+    <div class="field">
+      <label>Requisitos</label>
+      <textarea name="requirements" rows="3"><%= service ? service.requirements : '' %></textarea>
+    </div>
+
+    <% if (service) { %>
+      <div class="grid-2">
+        <div class="field">
+          <label>Status</label>
+          <select name="status">
+            <option value="approved" <%= service.status === 'approved' ? 'selected' : '' %>>Publicado</option>
+            <option value="pending" <%= service.status === 'pending' ? 'selected' : '' %>>Em análise</option>
+            <option value="rejected" <%= service.status === 'rejected' ? 'selected' : '' %>>Recusado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Destaque na home</label>
+          <label class="checkbox"><input type="checkbox" name="featured" value="1" <%= service.featured ? 'checked' : '' %> /><span>Marcar como destaque</span></label>
+        </div>
+      </div>
+    <% } else { %>
+      <label class="checkbox"><input type="checkbox" name="featured" value="1" /><span>Marcar como destaque na home</span></label>
+    <% } %>
+
+    <div class="form-actions">
+      <button class="btn btn-gold btn-lg" type="submit"><%= service ? 'Salvar' : 'Publicar service' %></button>
+      <% if (service) { %><a href="/admin/servicos" class="btn btn-ghost">Voltar</a><% } %>
+    </div>
+  </form>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

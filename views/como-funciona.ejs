@@ -1,0 +1,60 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div class="container">
+    <span class="eyebrow">Passo a passo</span>
+    <h1>Como funciona o <%= settings.site_name %></h1>
+    <p class="muted">Do orçamento grátis até a entrega do service, tudo transparente.</p>
+  </div>
+</div>
+
+<div class="container section">
+  <div class="flow">
+    <div class="flow-item">
+      <span class="flow-icon"><%- icon('game') %></span>
+      <div>
+        <h3>1. Escolha o service</h3>
+        <p>Navegue pelo catálogo por categoria — Cavernas, Arena, RTA, Monstros e Contas. Cada página mostra preço, prazo, o que está incluso e os requisitos.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <span class="flow-icon"><%- icon('cart') %></span>
+      <div>
+        <h3>2. Peça um orçamento grátis</h3>
+        <p>Envie os dados básicos da sua conta (nick, nível, ranking e box). Nossa equipe analisa <strong>sem custo</strong> se a conta está apta para o service que você quer.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <span class="flow-icon"><%- icon('chat') %></span>
+      <div>
+        <h3>3. Receba a análise</h3>
+        <p>Respondemos com o valor exato, o prazo e observações. Você acompanha o status direto no seu painel, sem precisar correr atrás.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <span class="flow-icon"><%- icon('check') %></span>
+      <div>
+        <h3>4. Feche e acompanhe</h3>
+        <p>Aprovou? É só fechar pelo canal oficial e acompanhar a execução. Todo o histórico fica registrado na sua conta.</p>
+      </div>
+    </div>
+    <div class="flow-item">
+      <span class="flow-icon"><%- icon('shield') %></span>
+      <div>
+        <h3>Segurança e verificação</h3>
+        <p>Todo vendedor passa por verificação manual da administração antes de publicar. Services de terceiros só entram no ar após aprovação.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band with-char mt-lg">
+    <img src="/img/char-beastmonk.png" alt="" class="cta-char" loading="lazy" />
+    <div class="cta-copy">
+      <h2>Pronto para começar?</h2>
+      <p>O orçamento é grátis e você não assume compromisso nenhum.</p>
+    </div>
+    <a href="/orcamento" class="btn btn-gold btn-lg">Pedir orçamento grátis</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

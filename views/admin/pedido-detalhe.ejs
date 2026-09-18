@@ -1,0 +1,116 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Pedido <span class="quote-id"><%= order.id %></span></h1>
+    <p class="muted"><%= order.title || 'Service personalizado' %></p>
+  </div>
+  <a href="/admin/pedidos" class="btn btn-ghost">Voltar</a>
+</div>
+
+<% var st = orderStatus[order.status] || orderStatus.pending_payment; %>
+<div class="container order-hero">
+  <div>
+    <div class="order-id">#<%= order.id %></div>
+    <div class="order-status-line">
+      <span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span>
+      <% if (order.paid_at) { %><span class="muted small">Pago em <%= order.paid_at %></span><% } %>
+      <% if (order.completed_at) { %><span class="muted small">Concluído em <%= order.completed_at %></span><% } %>
+    </div>
+  </div>
+  <div class="total-price"><%= money(order.price) %></div>
+</div>
+
+<div class="container split">
+  <div class="left">
+    <div class="panel">
+      <div class="panel-head"><h2>Dados completos</h2></div>
+      <ul class="detail-list">
+        <li><span>Cliente</span><%= order.client_name || '—' %> <%= order.client_email ? '· ' + order.client_email : '' %></li>
+        <li><span>WhatsApp</span><%= order.client_whatsapp || '—' %></li>
+        <li><span>Vendedor</span><%= order.seller_name || 'Nenhum (service da plataforma)' %> <%= order.seller_email ? '· ' + order.seller_email : '' %></li>
+        <li><span>Serviço</span><%= order.service_title || order.title || 'Service personalizado' %></li>
+        <li><span>Jogo</span><%= order.game_name || '—' %></li>
+        <li><span>Rank atual</span><%= order.game_rank || '—' %></li>
+        <li><span>Caixas</span><%= order.game_boxes || '—' %></li>
+        <li><span>Valor total</span><%= money(order.price) %></li>
+        <li><span>Comissão (<%= order.commission_pct || 0 %>%)</span><%= money(order.price - order.seller_amount) %></li>
+        <li><span>Renda do vendedor</span><strong style="color:var(--gold)"><%= money(order.seller_amount) %></strong></li>
+      </ul>
+      <% if (order.message) { %>
+        <p class="form-note" style="margin-top:1rem">DETALHE DO PEDIDO</p>
+        <div class="quote-message"><%= order.message %></div>
+      <% } %>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head" id="chat"><h2>Conversa</h2></div>
+      <div class="chat-box">
+        <div class="chat-thread">
+          <% if (!messages.length) { %><p class="muted small center">Nenhuma mensagem ainda.</p><% } %>
+          <% messages.forEach(function(m){ var me = m.sender_id === user.id; %>
+            <div class="msg <%= me ? 'me' : '' %>">
+              <div class="msg-head"><strong><%= m.sender_role === 'admin' ? 'Você' : m.sender_role === 'seller' ? 'Vendedor' : 'Cliente' %></strong><span><%= m.created_at %></span></div>
+              <div class="msg-body"><%= m.body %></div>
+            </div>
+          <% }); %>
+        </div>
+        <form method="POST" action="/admin/pedidos/<%= order.id %>/mensagem" class="chat-input">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <textarea name="message" maxlength="2000" placeholder="Responda aqui..." required></textarea>
+          <button class="btn btn-gold" type="submit">Enviar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="panel">
+      <div class="panel-head"><h2>Atualizar status</h2></div>
+      <form method="POST" action="/admin/pedidos/<%= order.id %>/status">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="field">
+          <label>Novo status</label>
+          <select name="status">
+            <% var all = ['pending_payment','awaiting_confirm','paid','in_progress','delivered','completed','cancelled','refunded']; %>
+            <% all.forEach(function(s){ %>
+              <option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= orderStatus[s].label %></option>
+            <% }); %>
+          </select>
+        </div>
+        <button class="btn btn-gold btn-block" type="submit">Salvar status</button>
+      </form>
+      <p class="side-note">Ao marcar como "Pago", notificamos cliente e vendedor. Concluído encerra o pedido e credita o saldo do vendedor (se houver).</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Pagamento</h2></div>
+      <ul class="detail-list">
+        <li><span>Status</span><%= st.label %></li>
+        <li><span>Criado em</span><%= order.created_at %></li>
+        <% if (order.paid_at) { %><li><span>Pago em</span><%= order.paid_at %></li><% } %>
+      </ul>
+      <% if (order.payment_code) { %>
+        <p class="form-note">PIX COPIA E COLA</p>
+        <div class="quote-message small"><%= order.payment_code %></div>
+        <p class="form-note">Confira o valor recebido e o comprovante enviado pelo cliente antes de aprovar a confirmação automática.</p>
+      <% } %>
+    </div>
+
+    <% if (review) { %>
+      <div class="panel">
+        <div class="panel-head"><h2>Avaliação</h2><a href="/admin/avaliacoes" class="link-arrow">Ver todas →</a></div>
+        <div class="review">
+          <div class="review-top">
+            <span class="review-stars"><%= stars(review.rating) %></span>
+            <span class="review-time"><%= review.created_at %></span>
+          </div>
+          <% if (review.comment) { %><p class="review-body"><%= review.comment %></p><% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

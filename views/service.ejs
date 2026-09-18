@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+<% var base = baseUrl; %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "<%= service.title %>",
+  "description": "<%= service.short %>",
+  "url": "<%= base %>/services/<%= service.slug %>",
+  "provider": { "@type": "Organization", "name": "<%= settings.site_name %>" },
+  "category": "<%= service.category_name %>",
+  "offers": { "@type": "Offer", "availability": "https://schema.org/InStock", "priceCurrency": "BRL" }
+}
+</script>
+
+<div class="container breadcrumb">
+  <a href="/">Início</a> <span>/</span>
+  <a href="/services">Services</a> <span>/</span>
+  <a href="/services?cat=<%= service.category_slug %>"><%= service.category_name %></a> <span>/</span>
+  <span class="current"><%= service.title %></span>
+</div>
+
+<div class="container service-detail"<% if (service.category_color) { %> style="--acc:<%= service.category_color %>"<% } %>>
+  <div class="service-detail-main">
+    <div class="detail-media">
+      <img src="<%= service.image %>" alt="<%= service.title %>" onerror="this.src='/img/default-service.png'" />
+      <span class="service-tag" style="--cat-color:<%= service.category_color %>"><%- icon(service.category_icon) %> <%= service.category_name %></span>
+    </div>
+
+    <h1 class="detail-title"><%= service.title %></h1>
+    <div class="detail-badges">
+      <span class="badge badge-green">Service verificado</span>
+      <span class="badge"><%- icon('clock') %> Entrega em <%= service.delivery_min %>–<%= service.delivery_max %> dias</span>
+      <span class="badge">Conta segura</span>
+    </div>
+    <p class="detail-short"><%= service.short %></p>
+
+    <div class="prose"><%- service.description.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') %></div>
+
+    <div class="detail-columns">
+      <div class="detail-box">
+        <h3>O que está incluso</h3>
+        <ul class="check-list">
+          <% includes.forEach(function(it){ %><li><%= it %></li><% }); %>
+        </ul>
+      </div>
+      <div class="detail-box">
+        <h3><span class="h3-ic"><%- icon('clipboard') %></span> Requisitos</h3>
+        <p class="muted"><%= service.requirements || 'Nenhum requisito especial informado.' %></p>
+      </div>
+    </div>
+  </div>
+
+  <aside class="service-detail-side">
+    <div class="buy-box">
+      <div class="buy-price">
+        <span class="from">a partir de</span>
+        <strong><%= money(service.price_from) %></strong>
+        <% if (service.price_to && service.price_to > service.price_from) { %>
+          <span class="to">até <%= money(service.price_to) %></span>
+        <% } %>
+      </div>
+      <ul class="buy-facts">
+        <li><span>Entrega</span><strong><%= service.delivery_min %>–<%= service.delivery_max %> dias</strong></li>
+        <li><span>Categoria</span><strong><%= service.category_name %></strong></li>
+        <li><span>Vendedor</span><strong><%= service.seller_name %> <em class="verified">verificado</em></strong></li>
+      </ul>
+      <a href="/orcamento?service=<%= service.id %>" class="btn btn-gold btn-block btn-lg">Pedir orçamento grátis</a>
+      <p class="side-note">Você só paga depois que a análise da sua conta for aprovada. Sem compromisso.</p>
+    </div>
+    <div class="side-help">
+      <h4>Ficou com dúvida?</h4>
+      <p>Fale com a nossa equipe antes de fechar.</p>
+      <a class="btn btn-outline btn-block" href="https://wa.me/<%= settings.contact_whatsapp %>" target="_blank" rel="noopener">Falar no WhatsApp</a>
+    </div>
+  </aside>
+</div>
+
+<% if (related.length) { %>
+<section class="container section">
+  <div class="section-head"><div><span class="eyebrow">Veja também</span><h2>Services relacionados</h2></div></div>
+  <div class="card-grid">
+    <% related.forEach(function(s){ %>
+      <%- include('partials/service-card', { s, category: { name: service.category_name, icon: service.category_icon, color: service.category_color } }) %>
+    <% }); %>
+  </div>
+</section>
+<% } %>
+
+<%- include('partials/footer') %>

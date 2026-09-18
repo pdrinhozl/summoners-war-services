@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <img src="/img/logo.svg" alt="" class="brand-logo lg" />
+      <h1>Verificação em duas etapas</h1>
+      <p class="muted">Digite o código de 6 dígitos do seu aplicativo autenticador.</p>
+    </div>
+    <form method="POST" action="/login/2fa" class="card-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="field">
+        <label>Código do autenticador</label>
+        <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" required autofocus placeholder="000000" />
+      </div>
+      <button class="btn btn-gold btn-block btn-lg" type="submit">Verificar e entrar</button>
+    </form>
+    <p class="auth-alt"><a href="/logout">Cancelar e voltar ao login</a></p>
+  </div>
+  <div class="auth-side">
+    <h2>Camada extra de segurança</h2>
+    <p>Seus dados protegidos contra acesso indevido, mesmo que a senha vaze.</p>
+    <ul class="check-list">
+      <li>Código gerado no seu celular</li>
+      <li>Válido por poucos segundos</li>
+      <li>Ativado pela administração</li>
+    </ul>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

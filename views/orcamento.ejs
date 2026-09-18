@@ -1,0 +1,96 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div class="container">
+    <span class="eyebrow">100% grátis e sem compromisso</span>
+    <h1>Peça seu orçamento</h1>
+    <p class="muted">Conte pra gente sobre a sua conta. Nossa equipe analisa de graça se ela está apta para o service que você quer e retorna com valor e prazo.</p>
+  </div>
+</div>
+
+<div class="container quote-layout">
+  <form class="card-form" method="POST" action="/orcamento">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <h2 class="form-section">1. Qual service você quer?</h2>
+    <div class="field">
+      <label>Service desejado</label>
+      <select name="service_id">
+        <option value="">Não sei ainda / personalizado</option>
+        <% services.forEach(function(s){ %>
+          <option value="<%= s.id %>" <%= preselect === s.id ? 'selected' : '' %>><%= s.title %></option>
+        <% }); %>
+      </select>
+    </div>
+
+    <h2 class="form-section">2. Seus dados de contato</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Seu nome *</label>
+        <input type="text" name="client_name" value="<%= values.client_name || (user ? user.name : '') %>" required />
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" name="client_email" value="<%= values.client_email || (user ? user.email : '') %>" />
+      </div>
+      <div class="field">
+        <label>WhatsApp *</label>
+        <input type="text" name="client_whatsapp" value="<%= values.client_whatsapp || '' %>" placeholder="(11) 99999-9999" required />
+      </div>
+    </div>
+
+    <h2 class="form-section">3. Dados da conta (para a análise grátis)</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Nick no jogo</label>
+        <input type="text" name="game_name" value="<%= values.game_name || '' %>" placeholder="Ex: InvocadorTop" />
+      </div>
+      <div class="field">
+        <label>Nível da conta</label>
+        <input type="text" name="game_level" value="<%= values.game_level || '' %>" placeholder="Ex: 50, B3, etc." />
+      </div>
+      <div class="field">
+        <label>Ranking atual (Arena / RTA)</label>
+        <input type="text" name="game_rank" value="<%= values.game_rank || '' %>" placeholder="Ex: Fighter 3, C1..." />
+      </div>
+      <div class="field">
+        <label>Servidor</label>
+        <input type="text" name="game_boxes" value="<%= values.game_boxes || '' %>" placeholder="Global, Europa, Ásia..." />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Descreva o que você precisa</label>
+      <textarea name="message" rows="5" placeholder="Quais monstros, runes e objetivos você tem em mente?"><%= values.message || '' %></textarea>
+    </div>
+
+    <label class="checkbox">
+      <input type="checkbox" name="account_ready" value="1" />
+      <span>Minha conta está pronta e disponível para a análise (não está compartilhada no momento).</span>
+    </label>
+
+    <button class="btn btn-gold btn-lg btn-block" type="submit">Enviar orçamento grátis</button>
+    <p class="form-note">Ao enviar, você concorda com os <a href="/termos">termos de uso</a>. Nunca pedimos sua senha por este formulário.</p>
+  </form>
+
+  <aside class="quote-side">
+    <div class="side-box">
+      <h3>Por que é grátis?</h3>
+      <p>Queremos garantir que o service é ideal para a sua conta antes de você pagar qualquer coisa. Se não for possível, avisamos com honestidade.</p>
+    </div>
+    <div class="side-box">
+      <h3>Como funciona a análise</h3>
+      <ol class="side-steps">
+        <li>Você envia os dados da conta.</li>
+        <li>Nossa equipe analisa boxes, runes e progresso.</li>
+        <li>Você recebe o valor e o prazo exatos.</li>
+        <li>Só fecha se quiser. Sem pressão.</li>
+      </ol>
+    </div>
+    <div class="side-box accent">
+      <h3>Segurança em 1º lugar</h3>
+      <p>Nunca peça ou compartilhe senha e dados de pagamento fora dos canais oficiais do site.</p>
+    </div>
+  </aside>
+</div>
+
+<%- include('partials/footer') %>

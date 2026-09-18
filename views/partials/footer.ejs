@@ -1,0 +1,43 @@
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-trust">
+      <span><%- icon('shieldCheck') %> Ambiente seguro</span>
+      <span><%- icon('coins') %> Pagamento via Pix</span>
+      <span><%- icon('chat') %> Atendimento dedicado</span>
+      <span><%- icon('clipboard') %> Orçamento grátis em minutos</span>
+    </div>
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="/"><img src="/img/logo.svg" alt="" class="brand-logo" /><span class="brand-text"><%= settings.site_name %></span></a>
+        <p class="muted"><%= settings.tagline %></p>
+        <p class="muted small">Projeto independente de fãs. Summoners War é marca registrada da Com2uS. Não somos afiliados à Com2uS.</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <a href="/services">Todos os serviços</a>
+        <a href="/como-funciona">Como funciona</a>
+        <a href="/seja-um-vendedor">Vender no site</a>
+        <a href="/termos">Termos e segurança</a>
+        <a href="/privacidade">Privacidade e LGPD</a>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a>
+        <a href="https://wa.me/<%= settings.contact_whatsapp %>" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="<%= settings.contact_discord %>" target="_blank" rel="noopener">Discord</a>
+      </div>
+      <div>
+        <h4>Atalhos</h4>
+        <a href="/orcamento">Pedir orçamento grátis</a>
+        <a href="/registro">Criar conta</a>
+        <% if (!user) { %><a href="/login">Entrar</a><% } %>
+      </div>
+    </div>
+    <div class="container copyright">© <%= new Date().getFullYear() %> <%= settings.site_name %>. Todos os direitos reservados.</div>
+  </footer>
+  <button type="button" class="to-top" id="toTop" aria-label="Voltar ao topo" title="Voltar ao topo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+  <script src="/js/main.js"></script>
+</body>
+</html>

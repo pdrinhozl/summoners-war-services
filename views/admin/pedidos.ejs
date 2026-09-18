@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Pedidos</h1>
+    <p class="muted">Acompanhe e administre todos os pedidos da plataforma.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container">
+  <div class="tabs">
+    <a href="/admin/pedidos" class="<%= filter === 'all' ? 'active' : '' %>">Todos</a>
+    <% var filters = ['pending_payment','awaiting_confirm','paid','in_progress','delivered','completed','cancelled','refunded']; %>
+    <% filters.forEach(function(f){ %>
+      <a href="/admin/pedidos?status=<%= f %>" class="<%= filter === f ? 'active' : '' %>"><%= orderStatus[f].label %></a>
+    <% }); %>
+  </div>
+
+  <% if (!pedidos.length) { %>
+    <div class="empty"><h3>Nenhum pedido</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Serviço</th><th>Cliente</th><th>Vendedor</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <% pedidos.forEach(function(o){ var st = orderStatus[o.status] || orderStatus.pending_payment; %>
+            <tr>
+              <td><span class="quote-id">#<%= o.id %></span></td>
+              <td><%= o.title || 'Service personalizado' %></td>
+              <td><%= o.client_name || '—' %></td>
+              <td><%= o.seller_name || '—' %></td>
+              <td><%= money(o.price) %></td>
+              <td><span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span></td>
+              <td class="cell-actions"><a href="/admin/pedidos/<%= o.id %>" class="btn btn-ghost btn-xs">Abrir</a></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

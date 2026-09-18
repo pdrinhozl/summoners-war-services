@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<div class="container success-page">
+  <div class="success-icon"><%- icon('check') %></div>
+  <h1>Orçamento enviado!</h1>
+  <p class="muted">Recebemos o seu pedido <strong>#<%= quote.id %></strong>. Nossa equipe vai analisar a conta e responder por e-mail ou WhatsApp.</p>
+
+  <div class="summary-box">
+    <div><span>Service</span><strong><%= quote.service_id ? 'Selecionado' : 'Personalizado / a definir' %></strong></div>
+    <div><span>Nick no jogo</span><strong><%= quote.game_name || '—' %></strong></div>
+    <div><span>Nível</span><strong><%= quote.game_level || '—' %></strong></div>
+    <div><span>Ranking</span><strong><%= quote.game_rank || '—' %></strong></div>
+    <div><span>Status</span><strong class="status-pending">Aguardando análise</strong></div>
+    <div><span>Enviado em</span><strong><%= quote.created_at %></strong></div>
+  </div>
+
+  <div class="success-actions">
+    <a href="/services" class="btn btn-outline">Ver outros services</a>
+    <% if (user) { %>
+      <a href="/cliente/painel" class="btn btn-gold">Acompanhar no painel</a>
+    <% } else { %>
+      <a href="/registro" class="btn btn-gold">Criar conta para acompanhar</a>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

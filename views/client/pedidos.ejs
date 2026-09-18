@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do cliente</span>
+    <h1>Meus pedidos</h1>
+    <p class="muted">Acompanhe cada etapa: pagamento, execução, entrega e avaliação.</p>
+  </div>
+  <a href="/orcamento" class="btn btn-gold">Novo orçamento grátis</a>
+</div>
+
+<div class="container dash-stats">
+  <div class="stat"><strong data-count="<%= totals.active %>"><%= totals.active %></strong><span>Em andamento</span></div>
+  <div class="stat"><strong data-count="<%= totals.completed %>"><%= totals.completed %></strong><span>Concluídos</span></div>
+  <div class="stat"><strong data-count="<%= totals.total %>"><%= totals.total %></strong><span>Total de pedidos</span></div>
+</div>
+
+<div class="container section">
+  <% if (!pedidos.length) { %>
+    <div class="empty">
+      <h3>Nenhum pedido ainda</h3>
+      <p><a href="/orcamento">Solicite um orçamento grátis</a> para começar.</p>
+    </div>
+  <% } %>
+  <div class="quote-list">
+    <% pedidos.forEach(function(o){ var st = orderStatus[o.status] || orderStatus.pending_payment; %>
+      <div class="quote-row">
+        <div class="quote-row-main">
+          <div class="quote-row-top">
+            <span class="quote-id">#<%= o.id %></span>
+            <span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span>
+          </div>
+          <p class="quote-desc"><%= o.title || 'Service personalizado' %></p>
+          <div class="quote-meta">
+            <span>Criado em <%= o.created_at %></span>
+            <% if (o.seller_name) { %><span>Vendedor: <%= o.seller_name %></span><% } %>
+          </div>
+        </div>
+        <div class="quote-row-side">
+          <strong class="price"><%= money(o.price) %></strong>
+          <a href="/cliente/pedidos/<%= o.id %>" class="btn btn-ghost btn-sm">Ver detalhes</a>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

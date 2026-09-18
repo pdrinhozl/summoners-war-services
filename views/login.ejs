@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <img src="/img/logo.svg" alt="" class="brand-logo lg" />
+      <h1>Entrar na sua conta</h1>
+      <p class="muted">Acompanhe orçamentos, pedidos e services.</p>
+    </div>
+    <form method="POST" action="/login" class="card-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" name="email" value="<%= form.email || '' %>" required autofocus />
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" name="password" required />
+      </div>
+      <button class="btn btn-gold btn-block btn-lg" type="submit">Entrar</button>
+      <p class="form-note center"><a href="/esqueci-senha">Esqueci minha senha</a></p>
+    </form>
+    <p class="auth-alt">Não tem conta? <a href="/registro">Crie grátis</a></p>
+  </div>
+  <div class="auth-side">
+    <h2>Bem-vindo de volta, Invocador</h2>
+    <p>Gerencie seus orçamentos e acompanhe cada etapa do seu service em um só lugar.</p>
+    <ul class="check-list">
+      <li>Orçamentos grátis e sem compromisso</li>
+      <li>Status em tempo real</li>
+      <li>Atendimento direto com a equipe</li>
+    </ul>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,15 @@
+<aside class="admin-side">
+  <div class="admin-side-head">
+    <%- icon('crown') %><span>Painel do vendedor</span>
+  </div>
+  <nav class="admin-side-nav">
+    <a href="/vendedor/painel" class="<%= path === '/vendedor/painel' ? 'active' : '' %>"><%- icon('gem') %>Visão geral</a>
+    <a href="/vendedor/pedidos" class="<%= path.startsWith('/vendedor/pedidos') ? 'active' : '' %>"><%- icon('cart') %>Pedidos</a>
+    <a href="/vendedor/orcamentos" class="<%= path === '/vendedor/orcamentos' ? 'active' : '' %>"><%- icon('clipboard') %>Orçamentos</a>
+    <a href="/vendedor/ganhos" class="<%= path === '/vendedor/ganhos' ? 'active' : '' %>"><%- icon('coins') %>Ganhos</a>
+    <a href="/vendedor/perfil" class="<%= path === '/vendedor/perfil' ? 'active' : '' %>"><%- icon('user') %>Meu perfil</a>
+  </nav>
+  <div class="admin-side-foot">
+    <a href="/"><%- icon('home') %>Ver site</a>
+  </div>
+</aside>

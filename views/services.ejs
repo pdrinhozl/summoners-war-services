@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div class="container">
+    <span class="eyebrow">Catálogo</span>
+    <h1>Services de Summoners War</h1>
+    <p class="muted"><%= services.length %> service(s) disponíveis · todos verificados pela administração</p>
+  </div>
+</div>
+
+<div class="container services-layout">
+  <aside class="filters">
+    <form method="GET" action="/services" class="filter-box">
+      <label class="filter-label">Buscar</label>
+      <input type="text" name="q" value="<%= q %>" placeholder="Ex: arena, GB12, RTA..." />
+      <input type="hidden" name="cat" value="<%= activeCat %>" />
+      <label class="filter-label">Ordenar</label>
+      <select name="sort">
+        <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Mais recentes</option>
+        <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Menor preço</option>
+        <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Maior preço</option>
+      </select>
+      <button class="btn btn-gold btn-block" type="submit">Aplicar filtros</button>
+    </form>
+
+    <div class="filter-box">
+      <label class="filter-label">Categorias</label>
+      <div class="cat-list">
+        <a href="/services?cat=all<%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= activeCat === 'all' ? 'active' : '' %>">Todos <span><%= Object.values(counts).reduce(function(a,b){return a+b;},0) %></span></a>
+        <% categories.forEach(function(c){ %>
+          <a href="/services?cat=<%= c.slug %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= activeCat === c.slug ? 'active' : '' %>"><%- icon(c.icon) %> <%= c.name %> <span><%= counts[c.slug] || 0 %></span></a>
+        <% }); %>
+      </div>
+    </div>
+  </aside>
+
+  <div class="services-main">
+    <% if (!services.length) { %>
+      <div class="empty">
+        <h3>Nenhum service encontrado</h3>
+        <p>Tente outra busca ou categoria. Você também pode pedir um <a href="/orcamento">orçamento personalizado grátis</a>.</p>
+        <p class="mt"><a href="/services?cat=all" class="btn btn-outline btn-sm">Limpar filtros</a></p>
+      </div>
+    <% } %>
+    <div class="card-grid">
+      <% services.forEach(function(s){ %>
+        <%- include('partials/service-card', { s, category: { name: s.category_name, icon: s.category_icon, color: s.category_color } }) %>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

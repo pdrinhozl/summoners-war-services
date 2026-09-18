@@ -1,0 +1,80 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Segurança</h1>
+    <p class="muted">Verificação em duas etapas (2FA) para proteger o acesso administrativo.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container split">
+  <div class="left">
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Verificação em duas etapas</h2>
+        <% if (user.twofa_enabled) { %>
+          <span class="badge badge-green">Ativado</span>
+        <% } else { %>
+          <span class="badge">Desativado</span>
+        <% } %>
+      </div>
+
+      <% if (!user.twofa_enabled) { %>
+        <p class="muted">Escaneie o QR code abaixo com o <strong>Google Authenticator</strong> ou <strong>Authy</strong> e digite o código gerado para ativar.</p>
+        <div class="qr-wrap mt-lg">
+          <% if (qr) { %>
+            <img src="<%= qr %>" alt="QR code de ativação" />
+          <% } else { %>
+            <div class="empty"><p>Não foi possível gerar o QR code.</p></div>
+          <% } %>
+          <div class="code-box">
+            <p>Ou digite esta chave manualmente no app:</p>
+            <div class="code-copy">
+              <input type="text" readonly value="<%= pendingSecret %>" onclick="this.select()" style="flex:1; padding:0.65rem 0.8rem; background:var(--bg-2); border:1px solid var(--border-strong); border-radius:6px; color:var(--text); font-family:ui-monospace,Consolas,monospace;" />
+            </div>
+          </div>
+        </div>
+        <form method="POST" action="/admin/seguranca/habilitar" class="mt-lg">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="field">
+            <label>Código de 6 dígitos</label>
+            <input type="text" name="code" inputmode="numeric" maxlength="6" pattern="[0-9]*" required placeholder="000000" />
+          </div>
+          <button class="btn btn-gold btn-block" type="submit">Ativar 2FA</button>
+        </form>
+      <% } else { %>
+        <p class="muted">O 2FA está ativo. Para desativar, informe um código válido do autenticador.</p>
+        <form method="POST" action="/admin/seguranca/desabilitar" class="mt">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="field">
+            <label>Código de 6 dígitos</label>
+            <input type="text" name="code" inputmode="numeric" maxlength="6" pattern="[0-9]*" required placeholder="000000" />
+          </div>
+          <button class="btn btn-danger btn-block" type="submit">Desativar 2FA</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="panel">
+      <div class="panel-head"><h2>Boas práticas</h2></div>
+      <ul class="check-list">
+        <li>Guarde o código de recuperação do seu app autenticador.</li>
+        <li>Nunca compartilhe a chave de 2FA com ninguém.</li>
+        <li>Use uma senha diferente das de outros sites.</li>
+        <li>Revise regularmente as credenciais no arquivo <code>.env</code>.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

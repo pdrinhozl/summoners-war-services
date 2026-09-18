@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do vendedor</span>
+    <h1>Meu perfil</h1>
+    <p class="muted">Essas informações são usadas pela administração na verificação e aparecem para os clientes.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <div class="banner <%= seller.seller_status === 'verified' ? 'banner-green' : seller.seller_status === 'rejected' ? 'banner-red' : 'banner-warn' %>">
+    Status da verificação:
+    <strong><%= seller.seller_status === 'verified' ? 'Verificado' : seller.seller_status === 'rejected' ? 'Recusado' : 'Aguardando análise' %></strong>
+  </div>
+
+  <form method="POST" action="/vendedor/perfil" class="card-form mt">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <div class="grid-2">
+      <div class="field">
+        <label>Nome / apelido público</label>
+        <input type="text" name="name" value="<%= seller.name %>" required />
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" name="email" value="<%= seller.email %>" required />
+      </div>
+    </div>
+    <div class="field">
+      <label>Como os clientes falam com você</label>
+      <input type="text" name="seller_contact" value="<%= seller.seller_contact %>" placeholder="Discord, WhatsApp, etc." />
+    </div>
+    <div class="field">
+      <label>Sobre você</label>
+      <textarea name="seller_about" rows="6" placeholder="Fale da sua experiencia, tipos de service, prazos medios..."><%= seller.seller_about %></textarea>
+    </div>
+    <button class="btn btn-gold" type="submit">Salvar perfil</button>
+  </form>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

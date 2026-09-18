@@ -1,0 +1,84 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Administração</span>
+    <h1>Services</h1>
+    <p class="muted">Publique, edite e configure os services do site.</p>
+  </div>
+  <div class="dash-header-actions">
+    <a href="/admin/servicos/novo" class="btn btn-gold btn-sm">+ Novo service</a>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <div class="tabs">
+    <a href="/admin/servicos?status=all" class="<%= filter === 'all' ? 'active' : '' %>">Todos</a>
+    <a href="/admin/servicos?status=approved" class="<%= filter === 'approved' ? 'active' : '' %>">Publicados</a>
+    <a href="/admin/servicos?status=pending" class="<%= filter === 'pending' ? 'active' : '' %>">Em análise</a>
+    <a href="/admin/servicos?status=rejected" class="<%= filter === 'rejected' ? 'active' : '' %>">Recusados</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Service</th><th>Categoria</th><th>Vendedor</th><th>Preço</th><th>Status</th><th>Destaque</th><th></th></tr></thead>
+      <tbody>
+        <% services.forEach(function(s){ %>
+          <tr>
+            <td>
+              <div class="cell-service">
+                <img src="<%= s.image %>" alt="" loading="lazy" onerror="this.src='/img/default-service.png'" />
+                <span><%= s.title %></span>
+              </div>
+            </td>
+            <td><%= s.category_icon %> <%= s.category_name %></td>
+            <td><%= s.owner_name || 'Equipe' %></td>
+            <td><%= money(s.price_from) %></td>
+            <td><span class="status-pill status-<%= s.status %>"><%= s.status === 'approved' ? 'Publicado' : s.status === 'pending' ? 'Em análise' : 'Recusado' %></span></td>
+            <td><%= s.featured ? '★' : '—' %></td>
+            <td class="cell-actions">
+              <a href="/admin/servicos/<%= s.id %>" class="btn btn-ghost btn-xs">Editar</a>
+              <% if (s.status !== 'approved') { %>
+                <form method="POST" action="/admin/servicos/<%= s.id %>/status"><input type="hidden" name="_csrf" value="<%= csrfToken %>" /><input type="hidden" name="status" value="approved" /><input type="hidden" name="return" value="/admin/servicos?status=<%= filter %>" /><button class="btn btn-green btn-xs">Aprovar</button></form>
+              <% } %>
+              <form method="POST" action="/admin/servicos/<%= s.id %>/excluir" onsubmit="return confirm('Excluir este service?');"><input type="hidden" name="_csrf" value="<%= csrfToken %>" /><button class="btn btn-danger btn-xs">Excluir</button></form>
+            </td>
+          </tr>
+        <% }); %>
+        <% if (!services.length) { %><tr><td colspan="7" class="muted center">Nenhum service neste filtro.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <details class="panel mt-lg">
+    <summary class="panel-head pointer"><h2>Categorias</h2><span class="muted">gerenciar</span></summary>
+    <div class="cat-manage">
+      <% categories.forEach(function(c){ %>
+        <form method="POST" action="/admin/categorias/<%= c.id %>" class="cat-manage-row">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <input class="input-xs" type="text" name="icon" value="<%= c.icon %>" />
+          <input type="text" name="name" value="<%= c.name %>" />
+          <input type="color" name="color" value="<%= c.color %>" class="color-input" />
+          <button class="btn btn-ghost btn-xs" type="submit">Salvar</button>
+        </form>
+        <form method="POST" action="/admin/categorias/<%= c.id %>/excluir" onsubmit="return confirm('Excluir categoria?');"><input type="hidden" name="_csrf" value="<%= csrfToken %>" /><button class="btn btn-danger btn-xs">Excluir</button></form>
+      <% }); %>
+    </div>
+    <form method="POST" action="/admin/categorias" class="cat-manage-row mt">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input class="input-xs" type="text" name="icon" value="🔮" placeholder="ex: ⚔️, 🏆 ou sword, gem" />
+      <input type="text" name="name" placeholder="Nova categoria" required />
+      <input type="color" name="color" value="#7b5cff" class="color-input" />
+      <button class="btn btn-gold btn-xs" type="submit">Adicionar</button>
+    </form>
+  </details>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do vendedor</span>
+    <h1>Orçamentos recebidos</h1>
+    <p class="muted">Pedidos de clientes relacionados aos seus services.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container section">
+  <% if (!quotes.length) { %>
+    <div class="empty"><h3>Nenhum orçamento ainda</h3><p>Quando alguém pedir um orçamento dos seus services, ele aparece aqui.</p></div>
+  <% } %>
+  <div class="quote-list">
+    <% quotes.forEach(function(q){ %>
+      <div class="quote-row">
+        <div class="quote-row-main">
+          <div class="quote-row-top">
+            <span class="quote-id">#<%= q.id %></span>
+            <span class="status-pill status-<%= q.status %>"><%= q.status %></span>
+          </div>
+          <p class="quote-desc"><strong><%= q.service_title || 'Service' %></strong> — <%= q.message ? q.message.slice(0,160) : 'Sem descrição' %></p>
+          <div class="quote-meta">
+            <span><%- icon('user') %> <%= q.client_name %></span>
+            <span><%= q.game_name || '—' %></span>
+            <span><%= q.created_at %></span>
+          </div>
+        </div>
+        <div class="quote-row-side">
+          <% if (q.offer_price) { %><span class="from">proposta</span><strong class="price"><%= money(q.offer_price) %></strong><% } %>
+          <% if (q.admin_note) { %><div class="note-box"><strong>Nota:</strong> <%= q.admin_note %></div><% } %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

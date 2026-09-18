@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do vendedor</span>
+    <h1>Ganhos</h1>
+    <p class="muted">Seu saldo acumulado com serviços concluídos.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container balance-hero">
+  <div>
+    <div class="eyebrow">Saldo disponível</div>
+    <div class="balance-dollar"><%= money(seller.seller_balance) %></div>
+    <p class="muted small">Saque mínimo de <%= money(20) %>. Valor liberado após o cliente confirmar a entrega.</p>
+  </div>
+  <form method="POST" action="/vendedor/ganhos/sacar" onsubmit="return confirm('Solicitar o saque de todo o saldo disponível?');">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <button class="btn btn-gold" type="submit" <%= seller.seller_balance >= 20 ? '' : 'disabled' %>>Solicitar saque</button>
+  </form>
+</div>
+
+<div class="container" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+  <div class="section" style="padding-top:0">
+    <h2 class="dash-title">Pedidos concluídos</h2>
+    <% if (!history.length) { %>
+      <div class="empty"><h3>Nenhum pedido concluído ainda</h3><p>Seu saldo cresce conforme seus clientes confirmam o recebimento.</p></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Pedido</th><th>Valor pago</th><th>Comissão</th><th>Seu ganho</th></tr></thead>
+          <tbody>
+            <% history.forEach(function(o){ %>
+              <tr>
+                <td><span class="quote-id">#<%= o.id %></span></td>
+                <td><%= money(o.price) %></td>
+                <td><%= money(o.price - o.seller_amount) %></td>
+                <td style="color:var(--gold); font-weight:600"><%= money(o.seller_amount) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <h2 class="dash-title">Histórico de saques</h2>
+    <% if (!payouts.length) { %>
+      <div class="empty"><h3>Nenhum saque ainda</h3></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
+          <tbody>
+            <% payouts.forEach(function(p){ %>
+              <tr>
+                <td><%= p.created_at %></td>
+                <td><%= money(p.amount) %></td>
+                <td><span class="status-pill <%= p.status === 'paid' ? 'status-approved' : p.status === 'cancelled' ? 'status-rejected' : 'status-pending' %>"><%= p.status === 'paid' ? 'Pago' : p.status === 'cancelled' ? 'Cancelado' : 'Em processamento' %></span></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

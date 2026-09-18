@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: runa-nivel-5
+    runtime: node
+    plan: free
+    autoDeploy: true
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SITE_URL
+        fromService:
+          name: runa-nivel-5
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SESSION_SECRET
+        generateValue: true

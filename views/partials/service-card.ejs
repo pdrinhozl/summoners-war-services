@@ -1,0 +1,23 @@
+<article class="service-card">
+  <a href="/services/<%= s.slug %>" class="service-card-media">
+    <img src="<%= s.image || '/img/default-service.png' %>" alt="<%= s.title %>" loading="lazy" onerror="this.src='/img/default-service.png'" />
+    <span class="service-tag" style="--cat-color:<%= category.color %>"><%- icon(category.icon) %> <%= category.name %></span>
+    <% if (s.featured) { %><span class="service-hot">Destaque</span><% } %>
+    <span class="media-cta"><span>Ver detalhes <%- icon('arrowRight') %></span></span>
+  </a>
+  <div class="service-card-body">
+    <h3><a href="/services/<%= s.slug %>"><%= s.title %></a></h3>
+    <p class="service-short"><%= s.short %></p>
+    <div class="service-meta">
+      <span><%= s.delivery_min %>–<%= s.delivery_max %> dias</span>
+      <% if (s.seller_name) { %><span><%= s.seller_name %></span><% } %>
+    </div>
+    <div class="service-card-foot">
+      <div class="price-block">
+        <span class="from">a partir de</span>
+        <strong><%= money(s.price_from) %></strong>
+      </div>
+      <a href="/services/<%= s.slug %>" class="btn btn-gold btn-sm">Ver detalhes</a>
+    </div>
+  </div>
+</article>

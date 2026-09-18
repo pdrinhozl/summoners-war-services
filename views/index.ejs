@@ -1,0 +1,143 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow">Services verificados de Summoners War</span>
+      <h1 class="hero-title"><%= settings.hero_title %></h1>
+      <p class="hero-sub"><%= settings.hero_subtitle %></p>
+      <div class="hero-actions">
+        <a href="/services" class="btn btn-gold btn-lg">Ver services</a>
+        <a href="/orcamento" class="btn btn-outline btn-lg">Orçamento grátis</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong data-count="<%= latest.length %>" data-suffix="+"><%= latest.length %>+</strong><span>Services ativos</span></div>
+        <div><strong data-count="<%= sellerCount %>"><%= sellerCount %></strong><span>Vendedores verificados</span></div>
+        <div><strong data-count="<%= quoteCount %>" data-suffix="+"><%= quoteCount %>+</strong><span>Orçamentos analisados</span></div>
+      </div>
+      <div class="hero-trust">
+        <span><%- icon('shieldCheck') %> Pagamento via Pix</span>
+        <span><%- icon('check') %> Conta protegida</span>
+        <span><%- icon('user') %> Vendedores verificados</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="/img/char-theomars.png" alt="Theomars, monstro de Summoners War" class="hero-char" />
+      <% if (featured[0]) { %>
+        <a href="/services/<%= featured[0].slug %>" class="hero-badge" style="--cat-color:<%= featured[0].category_color %>">
+          <strong><%= money(featured[0].price_from) %></strong>
+          Destaque · <%= featured[0].title %>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Categorias</span>
+      <h2>Encontre o service ideal</h2>
+    </div>
+    <a href="/services" class="link-arrow">Ver todos →</a>
+  </div>
+  <div class="cat-grid">
+    <% catStats.forEach(function(c){ %>
+      <a href="/services?cat=<%= c.slug %>" class="cat-card" style="--cat-color:<%= c.color %>">
+        <span class="cat-icon"><%- icon(c.icon) %></span>
+        <span class="cat-name"><%= c.name %></span>
+        <span class="cat-count"><%= c.total %> services</span>
+      </a>
+    <% }); %>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Em alta</span>
+      <h2>Services em destaque</h2>
+    </div>
+    <a href="/services" class="link-arrow">Explorar →</a>
+  </div>
+  <div class="card-grid">
+    <% featured.forEach(function(s){ %>
+      <%- include('partials/service-card', { s, category: { name: s.category_name, icon: s.category_icon, color: s.category_color } }) %>
+    <% }); %>
+  </div>
+</section>
+
+<section class="how-strip">
+  <div class="container">
+    <div class="section-head center">
+      <div>
+        <span class="eyebrow">Simples e seguro</span>
+        <h2>Como funciona</h2>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="step-num">1</span><h3>Escolha o service</h3><p>Navegue pelas categorias e encontre o boost que combina com a sua conta.</p></div>
+      <div class="step"><span class="step-num">2</span><h3>Peça um orçamento grátis</h3><p>Envie os dados da sua conta. Analisamos de graça se ela está apta para o service.</p></div>
+      <div class="step"><span class="step-num">3</span><h3>Receba o retorno</h3><p>Nossa equipe responde com o valor e o prazo exatos, sem compromisso.</p></div>
+      <div class="step"><span class="step-num">4</span><h3>Acompanhe no painel</h3><p>Todo o status do seu pedido fica disponível na sua conta, em tempo real.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Novidades</span>
+      <h2>Chegaram agora</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    <% latest.filter(function(x){ return !featured.some(function(f){ return f.id === x.id; }); }).slice(0,3).forEach(function(s){ %>
+      <%- include('partials/service-card', { s, category: { name: s.category_name || 'Service', icon: s.category_icon || '⚔️', color: '#7b5cff' } }) %>
+    <% }); %>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head center">
+    <div>
+      <span class="eyebrow">Dúvidas</span>
+      <h2>Perguntas frequentes</h2>
+    </div>
+  </div>
+  <div class="faq">
+    <details class="faq-item">
+      <summary>Como funciona o pagamento? <span class="faq-ic"><%- icon('chevron') %></span></summary>
+      <p>O pagamento é feito via Pix, por um código gerado no painel. Você só paga depois que a sua conta for analisada e o pedido confirmado — sem compromisso antes da aprovação.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Minhas informações de conta ficam seguras? <span class="faq-ic"><%- icon('chevron') %></span></summary>
+      <p>Sim. Usamos senha com verificação em duas etapas (2FA), sessões protegidas e todas as conexões são seguras. Nunca pedimos sua senha do jogo — o acesso é feito pelos dados de vínculo informados no orçamento.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Quanto tempo demora para receber meu pedido? <span class="faq-ic"><%- icon('chevron') %></span></summary>
+      <p>O prazo de entrega aparece em cada service. Você acompanha em tempo real cada etapa no seu painel: pagamento, execução, entrega e avaliação.</p>
+    </details>
+    <details class="faq-item">
+      <summary>E se algo der errado? <span class="faq-ic"><%- icon('chevron') %></span></summary>
+      <p>Todo pedido tem status rastreável e acompanhamento pelo chat com o vendedor. Conflitos são analisados pela administração — e o valor só é liberado ao vendedor após a sua confirmação de recebimento.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Álbum? O que está incluso? <span class="faq-ic"><%- icon('chevron') %></span></summary>
+      <p>Cada service informa exatamente o que está incluso e os requisitos. Se precisar de algo específico, peça um <a href="/orcamento">orçamento grátis</a> e a equipe te responde com prazo e valor exatos.</p>
+    </details>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="cta-band with-char">
+    <img src="/img/char-chasun.png" alt="" class="cta-char" loading="lazy" />
+    <div class="cta-copy">
+      <h2>Quer vender seus services aqui?</h2>
+      <p>Cadastre-se como vendedor, passe pela nossa verificação manual e publique seus services para toda a comunidade.</p>
+    </div>
+    <a href="/seja-um-vendedor" class="btn btn-gold btn-lg">Quero ser vendedor</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

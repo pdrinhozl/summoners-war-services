@@ -1,0 +1,116 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Painel do vendedor</span>
+    <h1>Olá, <%= seller.name %></h1>
+    <p class="muted">Gerencie seus services e acompanhe os pedidos.</p>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<% if (seller.seller_status === 'verified') { %>
+  <div class="container">
+    <div class="banner banner-green">Conta verificada pela administração. Você pode publicar novos services e receber pedidos.</div>
+  </div>
+<% } else if (seller.seller_status === 'pending') { %>
+  <div class="container">
+    <div class="banner banner-warn">Sua conta está <strong>aguardando verificação</strong>. Complete seu <a href="/vendedor/perfil">perfil</a> para agilizar a análise da administração.</div>
+  </div>
+<% } else { %>
+  <div class="container">
+    <div class="banner banner-red">Sua conta de vendedor foi recusada. Entre em contato com a administração para mais detalhes.</div>
+  </div>
+<% } %>
+
+<div class="container dash-stats">
+  <div class="stat"><strong data-count="<%= stats.total %>"><%= stats.total %></strong><span>Services</span></div>
+  <div class="stat"><strong data-count="<%= stats.orders %>"><%= stats.orders %></strong><span>Pedidos ativos</span></div>
+  <div class="stat"><strong data-count="<%= stats.approved %>"><%= stats.approved %></strong><span>Publicados</span></div>
+  <div class="stat"><strong data-count="<%= stats.pending %>"><%= stats.pending %></strong><span>Em análise</span></div>
+</div>
+
+<div class="container section">
+  <div class="dash-title-row">
+    <h2 class="dash-title">Últimos pedidos</h2>
+    <a href="/vendedor/pedidos" class="link-arrow">Ver todos →</a>
+  </div>
+  <% if (!pedidos.length) { %>
+    <div class="empty">
+      <h3>Nenhum pedido ainda</h3>
+      <p>Quando um cliente contratar seu serviço, o pedido aparece aqui.</p>
+    </div>
+  <% } else { %>
+    <div class="quote-list">
+      <% pedidos.forEach(function(o){ var st = orderStatus[o.status] || orderStatus.pending_payment; %>
+        <div class="quote-row">
+          <div class="quote-row-main">
+            <div class="quote-row-top">
+              <span class="quote-id">#<%= o.id %></span>
+              <span class="status-pill" style="--pill:<%= st.color %>"><%= st.label %></span>
+            </div>
+            <p class="quote-desc"><%= o.title || 'Service personalizado' %></p>
+          </div>
+          <div class="quote-row-side">
+            <strong class="price"><%= money(o.price) %></strong>
+            <a href="/vendedor/pedidos/<%= o.id %>" class="btn btn-ghost btn-sm">Abrir</a>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
+
+<div class="container section">
+  <div class="dash-title-row">
+    <h2 class="dash-title">Meus services</h2>
+    <% if (seller.seller_status === 'verified') { %>
+      <a href="/vendedor/servicos/novo" class="btn btn-gold btn-sm">+ Novo service</a>
+    <% } %>
+  </div>
+  <% if (!services.length) { %>
+    <div class="empty">
+      <h3>Você ainda não tem services</h3>
+      <% if (seller.seller_status === 'verified') { %>
+        <p><a href="/vendedor/servicos/novo">Publique o seu primeiro service</a>.</p>
+      <% } else { %>
+        <p>Aguarde a verificação da sua conta para publicar.</p>
+      <% } %>
+    </div>
+  <% } %>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Service</th><th>Categoria</th><th>Preço</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% services.forEach(function(s){ %>
+          <tr>
+            <td>
+              <div class="cell-service">
+                <img src="<%= s.image %>" alt="" loading="lazy" onerror="this.src='/img/default-service.png'" />
+                <span><%= s.title %></span>
+              </div>
+            </td>
+            <td><%= s.category_name || '—' %></td>
+            <td><%= money(s.price_from) %></td>
+            <td><span class="status-pill status-<%= s.status %>"><%= s.status === 'approved' ? 'Publicado' : s.status === 'pending' ? 'Em análise' : 'Recusado' %></span></td>
+            <td class="cell-actions">
+              <a href="/vendedor/servicos/<%= s.id %>/editar" class="btn btn-ghost btn-xs">Editar</a>
+              <form method="POST" action="/vendedor/servicos/<%= s.id %>/excluir" onsubmit="return confirm('Excluir este service?');">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button class="btn btn-danger btn-xs" type="submit">Excluir</button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>

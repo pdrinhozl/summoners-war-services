@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <img src="/img/logo.svg" alt="" class="brand-logo lg" />
+      <h1>Recuperar senha</h1>
+      <% if (sent) { %>
+        <div class="banner banner-green mt">Enviamos um link de redefinição para o e-mail informado, se ele existir em nossa base. Verifique sua caixa de entrada (e o spam).</div>
+        <a href="/login" class="btn btn-gold btn-block btn-lg mt">Voltar para o login</a>
+      <% } else { %>
+        <p class="muted">Informe o e-mail da sua conta para receber o link de redefinição.</p>
+      <% } %>
+    </div>
+    <% if (!sent) { %>
+      <form method="POST" action="/esqueci-senha" class="card-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" name="email" required autofocus />
+        </div>
+        <button class="btn btn-gold btn-block btn-lg" type="submit">Enviar link de redefinição</button>
+      </form>
+    <% } %>
+    <p class="auth-alt">Lembrou da senha? <a href="/login">Entrar</a></p>
+  </div>
+  <div class="auth-side">
+    <h2>Sem drama</h2>
+    <p>Em poucos minutos você volta a acessar sua conta com uma nova senha.</p>
+    <ul class="check-list">
+      <li>Link seguro com validade de 1 hora</li>
+      <li>Nunca compartilhe links com terceiros</li>
+    </ul>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

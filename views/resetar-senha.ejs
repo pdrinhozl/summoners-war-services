@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <img src="/img/logo.svg" alt="" class="brand-logo lg" />
+      <h1>Redefinir senha</h1>
+      <% if (invalid) { %>
+        <div class="banner banner-red">Este link é inválido ou expirou. Solicite um novo link de redefinição.</div>
+        <a href="/esqueci-senha" class="btn btn-gold btn-block">Solicitar novo link</a>
+      <% } else { %>
+        <p class="muted">Escolha uma nova senha para sua conta.</p>
+      <% } %>
+    </div>
+    <% if (!invalid) { %>
+      <form method="POST" action="/resetar-senha/<%= token %>" class="card-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="grid-2">
+          <div class="field">
+            <label>Nova senha</label>
+            <input type="password" name="password" required minlength="6" autofocus />
+          </div>
+          <div class="field">
+            <label>Confirmar nova senha</label>
+            <input type="password" name="password2" required minlength="6" />
+          </div>
+        </div>
+        <button class="btn btn-gold btn-block btn-lg" type="submit">Salvar nova senha</button>
+      </form>
+    <% } %>
+    <p class="auth-alt">Lembrou a senha? <a href="/login">Entrar</a></p>
+  </div>
+  <div class="auth-side">
+    <h2>Quase lá</h2>
+    <p>Escolha uma senha forte e que você não use em outros sites.</p>
+    <ul class="check-list">
+      <li>Mínimo de 6 caracteres</li>
+      <li>Evite dados pessoais</li>
+    </ul>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

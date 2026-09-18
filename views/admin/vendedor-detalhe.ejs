@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+
+<div class="container dash-header">
+  <div>
+    <span class="eyebrow">Verificação de vendedor</span>
+    <h1><%= seller.name %></h1>
+    <p class="muted"><%= seller.email %> · cadastrado em <%= seller.created_at %></p>
+  </div>
+  <div class="dash-header-actions">
+    <a href="/admin/vendedores" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+</div>
+
+<div class="container admin-layout">
+  <%- include('_nav') %>
+  <div class="admin-main">
+
+<div class="container admin-grid">
+  <div class="panel">
+    <div class="panel-head"><h2>Perfil enviado</h2><span class="status-pill status-<%= seller.seller_status %>"><%= seller.seller_status === 'verified' ? 'Verificado' : seller.seller_status === 'rejected' ? 'Recusado' : 'Aguardando' %></span></div>
+    <div class="field">
+      <label>Contato</label>
+      <div class="quote-message"><%= seller.seller_contact || 'Não informado' %></div>
+    </div>
+    <div class="field mt">
+      <label>Sobre o vendedor</label>
+      <div class="quote-message"><%= seller.seller_about || 'Nada informado ainda.' %></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Decisão da verificação</h2></div>
+    <p class="muted small">A verificação é manual. Ao verificar, o vendedor poderá publicar services (que ainda passam por aprovação individual).</p>
+    <form method="POST" action="/admin/vendedores/<%= seller.id %>/status">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-green btn-block" name="status" value="verified" type="submit">Verificar vendedor</button>
+    </form>
+    <form method="POST" action="/admin/vendedores/<%= seller.id %>/status" class="mt">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-danger btn-block" name="status" value="rejected" type="submit">Recusar vendedor</button>
+    </form>
+    <form method="POST" action="/admin/vendedores/<%= seller.id %>/status" class="mt">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-ghost btn-block" name="status" value="pending" type="submit">Voltar para análise</button>
+    </form>
+  </div>
+</div>
+
+<div class="container panel">
+  <div class="panel-head"><h2>Services deste vendedor</h2></div>
+  <table class="data-table">
+    <thead><tr><th>Service</th><th>Preço</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <% services.forEach(function(s){ %>
+        <tr>
+          <td><%= s.title %></td>
+          <td><%= money(s.price_from) %></td>
+          <td><span class="status-pill status-<%= s.status %>"><%= s.status %></span></td>
+          <td class="cell-actions"><a href="/admin/servicos/<%= s.id %>" class="btn btn-ghost btn-xs">Ver</a></td>
+        </tr>
+      <% }); %>
+      <% if (!services.length) { %><tr><td colspan="4" class="muted center">Nenhum service enviado.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+
+</div>
+</div>
+
+<%- include('../partials/footer') %>
