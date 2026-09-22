@@ -2,16 +2,29 @@ const bcrypt = require('bcryptjs');
 const { get, run } = require('./db');
 
 async function seed() {
-  const existing = get('SELECT id FROM users WHERE email = ?', ['admin@swservice.com']);
+  const production = process.env.NODE_ENV === 'production';
+  const adminMail = process.env.INITIAL_ADMIN_EMAIL || 'admin@swservice.com';
+  const existing = get('SELECT * FROM users WHERE email = ?', [adminMail]);
+  const insecureAdmin = existing && production && bcrypt.compareSync('admin123', existing.password);
+  const adminPassword = production ? process.env.INITIAL_ADMIN_PASSWORD : 'admin123';
+  if (production && (!existing || insecureAdmin) && (!adminPassword || adminPassword.length < 16)) {
+    throw new Error('Configure INITIAL_ADMIN_PASSWORD com pelo menos 16 caracteres para o primeiro acesso.');
+  }
   if (!existing) {
     run(
       'INSERT INTO users (name, email, password, role, seller_status) VALUES (?, ?, ?, ?, ?)',
-      ['Administrador', 'admin@swservice.com', bcrypt.hashSync('admin123', 10), 'admin', 'verified']
+      ['Administrador', adminMail, bcrypt.hashSync(adminPassword, 10), 'admin', 'verified']
     );
+  } else if (insecureAdmin) {
+    run('UPDATE users SET password = ? WHERE id = ?', [bcrypt.hashSync(adminPassword, 10), existing.id]);
   }
 
   const demoMail = 'vendedor@swservice.com';
-  if (!get('SELECT id FROM users WHERE email = ?', [demoMail])) {
+  const demoSeller = get('SELECT * FROM users WHERE email = ?', [demoMail]);
+  if (production && demoSeller && bcrypt.compareSync('vendedor123', demoSeller.password)) {
+    run('UPDATE users SET active = 0 WHERE id = ?', [demoSeller.id]);
+  }
+  if (!production && !demoSeller) {
     run(
       'INSERT INTO users (name, email, password, role, seller_status, seller_about, seller_contact) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [
@@ -40,8 +53,8 @@ async function seed() {
   }
 
   const settings = {
-    site_name: 'Runa Nível 5',
-    tagline: 'Services profissionais de Summoners War: booms, maldições e muito mais.',
+    site_name: 'SW Service',
+    tagline: 'Solicite, acompanhe e receba seu serviço de Summoners War.',
     contact_email: 'contato@runanivel5.com',
     contact_whatsapp: '5511999998888',
     contact_discord: 'https://discord.gg/runanivel5',
@@ -58,8 +71,8 @@ async function seed() {
     }
   }
 
-  const sellerId = get('SELECT id FROM users WHERE email = ?', [demoMail]).id;
-  const adminId = get('SELECT id FROM users WHERE email = ?', ['admin@swservice.com']).id;
+  const adminId = get('SELECT id FROM users WHERE email = ?', [adminMail]).id;
+  const sellerId = get('SELECT id FROM users WHERE email = ? AND active = 1', [demoMail])?.id || adminId;
   const catId = (slug) => get('SELECT id FROM categories WHERE slug = ?', [slug]).id;
 
   if (!get('SELECT id FROM services WHERE slug = ?', ['boost-arena-c1']))
@@ -135,14 +148,13 @@ async function seed() {
     'conta-midfarme': '/img/art-dark.png',
   };
   for (const [slug, image] of Object.entries(art)) {
-    run('UPDATE services SET image = ? WHERE slug = ?', [image, slug]);
+    run("UPDATE services SET image = ? WHERE slug = ? AND (image IS NULL OR image = '' OR image = '/img/default-service.png')", [image, slug]);
   }
 
   console.log('Banco de dados populado com sucesso!');
-  console.log('');
-  console.log('Credenciais de acesso:');
-  console.log('  Admin     -> admin@swservice.com / admin123');
-  console.log('  Vendedor  -> vendedor@swservice.com / vendedor123');
+  if (!production) {
+    console.log('Contas locais de demonstração disponíveis. Consulte o README.');
+  }
 }
 
 if (require.main === module) {

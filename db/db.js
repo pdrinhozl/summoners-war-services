@@ -2,10 +2,11 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const DB_PATH = process.env.DB_PATH || path.join(DATA_DIR, 'app.db');
+fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
 const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA foreign_keys = ON');
@@ -188,6 +189,21 @@ function migrate() {
   for (const [name, def] of userColumns) {
     if (!has.get(name)) {
       db.exec(`ALTER TABLE users ADD COLUMN ${name} ${def}`);
+    }
+  }
+  const additions = {
+    users: [['phone', "TEXT DEFAULT ''"]],
+    quotes: [
+      ['category_id', 'INTEGER'], ['priority', "TEXT DEFAULT 'normal'"],
+      ['attachment', "TEXT DEFAULT ''"], ['delivery_estimate', "TEXT DEFAULT ''"],
+      ['adjustment_note', "TEXT DEFAULT ''"], ['requested_seller_id', 'INTEGER'],
+    ],
+  };
+  for (const [table, columns] of Object.entries(additions)) {
+    for (const [column, definition] of columns) {
+      if (!db.prepare(`SELECT name FROM pragma_table_info('${table}') WHERE name = ?`).get(column)) {
+        db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+      }
     }
   }
 }
