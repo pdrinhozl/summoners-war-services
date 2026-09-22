@@ -6,7 +6,7 @@ function loadUser(req, res, next) {
   res.locals.notifications = [];
   if (req.session && req.session.userId) {
     const user = get('SELECT * FROM users WHERE id = ?', [req.session.userId]);
-    if (user) {
+    if (user && user.active) {
       res.locals.user = user;
       res.locals.unreadCount = get('SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND read = 0', [user.id]).n;
       res.locals.notifications = all('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 8', [user.id]);
@@ -19,6 +19,7 @@ function loadUser(req, res, next) {
 
 function requireLogin(req, res, next) {
   if (!res.locals.user) {
+    if (req.method === 'GET' && req.originalUrl.startsWith('/') && !req.originalUrl.startsWith('//')) req.session.returnTo = req.originalUrl;
     req.session.flash = req.session.flash || [];
     req.session.flash.push({ type: 'error', text: 'Você precisa estar logado para acessar esta página.' });
     return res.redirect('/login');

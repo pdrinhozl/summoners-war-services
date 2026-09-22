@@ -1,3 +1,6 @@
+const envFile = require('path').join(__dirname, '.env');
+if (require('fs').existsSync(envFile)) process.loadEnvFile(envFile);
+
 const express = require('express');
 const session = require('express-session');
 const helmet = require('helmet');
@@ -6,16 +9,20 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 
-const { all } = require('./db/db');
+const { all, get } = require('./db/db');
 const seed = require('./db/seed');
-const { loadUser } = require('./middleware');
+const { loadUser, requireLogin } = require('./middleware');
 const { SqliteSessionStore, csrfProtect } = require('./lib/security');
 const upload = require('./lib/upload');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3050;
 
-const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
+if (process.env.NODE_ENV === 'production' && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
+  throw new Error('Configure SESSION_SECRET com pelo menos 32 caracteres em produção.');
+}
+
+const UPLOAD_DIR = upload.directory;
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 function loadSettings() {
@@ -30,6 +37,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
 app.use(compression());
+
+app.get('/health', (_req, res) => {
+  try {
+    get('SELECT 1 AS ok');
+    res.status(200).json({ status: 'ok' });
+  } catch {
+    res.status(503).json({ status: 'unavailable' });
+  }
+});
 
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
@@ -46,6 +62,7 @@ app.use(limiter);
 
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(express.json({ limit: '2mb' }));
+app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0 }));
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0 }));
 
 app.use(
@@ -64,7 +81,13 @@ app.use(
 );
 
 app.use(loadUser);
-app.use(csrfProtect);
+// Parse request images in memory; CSRF and field validation run before saving.
+app.post('/orcamento', requireLogin, require('./lib/request-upload').parse);
+app.use((req, res, next) => {
+  // These four catalog upload routes verify the parsed token in lib/upload.
+  if (req.method === 'POST' && req.is('multipart/form-data') && /^\/(admin|vendedor)\/servicos\/(novo|[0-9]+)$/.test(req.path)) return next();
+  return csrfProtect(req, res, next);
+});
 
 const ICONS = {
   time: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
@@ -99,6 +122,20 @@ const ICONS = {
   cog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
 };
 
+const appIcons = {
+  bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1"/><path d="m21 15-5-5L5 21"/>',
+  search: '<circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/>',
+  logout: '<path d="M9 4H4v16h5M9 12h12m-4-4 4 4-4 4"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  headset: '<path d="M4 14v-3a8 8 0 0 1 16 0v6c0 3-3 4-6 4"/><rect x="2" y="11" width="4" height="7" rx="2"/><rect x="18" y="11" width="4" height="7" rx="2"/>',
+};
+for (const [name, body] of Object.entries(appIcons)) {
+  ICONS[name] = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+}
+
 const EMOJI_ICONS = {
   '⚔️': 'sword', '⚔': 'sword',
   '🏆': 'trophy',
@@ -124,12 +161,19 @@ app.use((req, res, next) => {
   res.locals.categories = all('SELECT * FROM categories ORDER BY sort, name');
   res.locals.flash = req.session.flash || [];
   res.locals.baseUrl = process.env.SITE_URL || res.locals.settings.site_url || `http://localhost:${PORT}`;
-  delete req.session.flash;
+  const render = res.render;
+  res.render = function (view, options, callback) {
+    delete req.session.flash;
+    return render.call(this, view, options, callback);
+  };
   res.locals.money = (v) => {
     const n = Number(v) || 0;
     return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
   res.locals.path = req.path;
+  res.locals.date = require('./lib/app-view').date;
+  res.locals.query = req.query;
+  res.locals.initials = (name) => String(name || 'U').trim().split(/\s+/).slice(0, 2).map(n => n[0]).join('').toUpperCase();
   res.locals.icon = (name) => {
     const raw = name === undefined || name === null ? '' : String(name);
     const svg = ICONS[raw] || ICONS[EMOJI_ICONS[raw] || ''];
@@ -149,22 +193,24 @@ app.use((req, res, next) => {
     pending_payment: { label: 'Aguardando pagamento', color: '#e3c983' },
     awaiting_confirm: { label: 'Pagamento em confirmação', color: '#8cc6e6' },
     paid: { label: 'Pago · aguardando início', color: '#a4b6c9' },
-    in_progress: { label: 'Em execução', color: '#b6a9e6' },
+    in_progress: { label: 'Em andamento', color: '#b6a9e6' },
     delivered: { label: 'Entregue · aguardando confirmação', color: '#d9b65f' },
     completed: { label: 'Concluído', color: '#86d9ac' },
     cancelled: { label: 'Cancelado', color: '#eda2b1' },
     refunded: { label: 'Reembolsado', color: '#eda2b1' },
   };
   res.locals.quoteStatus = {
-    pending: { label: 'Aguardando análise', color: '#e3c983' },
+    pending: { label: 'Aguardando orçamento', color: '#e3c983' },
     reviewed: { label: 'Em análise', color: '#8cc6e6' },
-    approved: { label: 'Aprovado', color: '#86d9ac' },
+    approved: { label: 'Orçamento recebido', color: '#86d9ac' },
+    cancelled: { label: 'Cancelado', color: '#eda2b1' },
     rejected: { label: 'Recusado', color: '#eda2b1' },
     done: { label: 'Concluído', color: '#b6a9e6' },
   };
   next();
 });
 
+app.use('/', require('./routes/experience'));
 app.use('/', require('./routes/public'));
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/client'));
@@ -178,11 +224,11 @@ app.use((req, res) => {
 app.use((err, req, res, _next) => {
   if (err && err.message === 'Formato de imagem inválido.') {
     req.session.flash = [{ type: 'error', text: err.message }];
-    return res.redirect('back');
+    return res.redirect(req.path === '/orcamento' ? '/orcamento' : '/painel');
   }
   if (err && err.code === 'LIMIT_FILE_SIZE') {
     req.session.flash = [{ type: 'error', text: 'Imagem muito grande. Máximo de 4MB.' }];
-    return res.redirect('back');
+    return res.redirect(req.path === '/orcamento' ? '/orcamento' : '/painel');
   }
   console.error(err);
   res.status(500).render('erro', { code: 500, title: 'Erro interno', message: 'Algo deu errado no servidor. Tente novamente em instantes.' });
@@ -191,7 +237,7 @@ app.use((err, req, res, _next) => {
 async function startServer() {
   await seed();
   const server = app.listen(PORT, () => {
-    console.log(`🚀 Runa Nível 5 rodando em http://localhost:${PORT}`);
+    console.log(`${loadSettings().site_name} rodando em http://localhost:${PORT}`);
     console.log('   Mantenha este terminal aberto. Para parar, aperte Ctrl+C.');
   });
   server.on('error', (err) => {
