@@ -4,6 +4,8 @@ const GLOBALS = {
   process: 'readonly',
   console: 'readonly',
   Buffer: 'readonly',
+  FormData: 'readonly',
+  Blob: 'readonly',
   setInterval: 'readonly',
   clearInterval: 'readonly',
   setTimeout: 'readonly',
